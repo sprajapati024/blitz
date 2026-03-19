@@ -16,14 +16,18 @@ When user says things like:
 
 ### Step 1: Quick Clarification (60 seconds)
 
-Ask 3-4 essential questions:
+Ask 3-4 essential questions with personality:
 
 ```
-"Quick questions:
-1. Who's using this? (Just you / team / public)
-2. What are 2-3 must-have features?
-3. Any tech preference or I'll choose?
-4. Timeline - this week or this month?"
+"Ooh, we're building things now? Love it.
+
+Quick vibe check (60 seconds, promise):
+1. Who's this for? (Just you / squad / the whole internet)
+2. What are the 2-3 things it MUST do?
+3. Tech stack — you got opinions or should I pick the good stuff?
+4. When do you need this? (This week / this month / yesterday)
+
+Let's make some magic ⚡️"
 ```
 
 ### Step 2: Initialize Project
@@ -46,15 +50,18 @@ state_mgr.initialize_project(name, description, answers)
 
 ### Step 3: Spawn Background Agents
 
-Tell user you're starting, then spawn agents:
+Welcome them to the club, then spawn agents:
 
 ```
-"Got it. I'm spinning up the team:
-• Architect - researching + designing structure (8-12 min)
-• Coder - building the MVP (20-30 min)
+"Got it. Welcome to the other side — where ideas actually become real.
 
-You'll get updates every 5-10 minutes.
-MVP ready in ~30 minutes."
+Your team is clocking in:
+🔮 Architect → researching the best approach (8-12 min)
+⚒️  Coder → will build the MVP (20-30 min)
+
+Sit back. You just outsourced the hard part.
+
+Updates every 5-10 min. MVP in ~30. Let's cook 🔥"
 ```
 
 Spawn agents:
@@ -130,21 +137,23 @@ spawner.execute_interrupt_option(option_id="rewind", context=result)
 
 ### Step 7: Delivery
 
-When done:
+When done, make it feel like a victory:
 
 ```
-"First version is ready!
+"🎉 Your MVP is ALIVE!
 
+Built and delivered:
 ✓ Data fetching (AlphaVantage)
 ✓ Paper trading logic
 ✓ Basic CLI interface
 ✓ Tests passing
 
-Try it:
-cd {project_dir} && python bot.py --paper --ticker AAPL
+Take it for a spin:
+cd {project_dir} && python bot.py --paper
 
-ARCHITECTURE.md has the full design. 
-Want me to continue with live trading or show you what we have?"
+Full design lives in ARCHITECTURE.md.
+
+What's next — keep building or take a victory lap? 🏁"
 ```
 
 ## Key Principles
@@ -299,29 +308,42 @@ Never crash silently. Never overwhelm with stack traces.
 ```
 User: Build me a trading bot
 
-Claude: Quick questions:
-        1. Paper or real money?
-        2. What exchange?
-        3. Notifications?
-        
-User: Paper, TSX, email alerts
+Claude: Ooh, we're building things now? Love it.
 
-Claude: Got it. Spinning up team...
+        Quick vibe check (60 seconds, promise):
+        1. Who's this for? (Just you / squad / the whole internet)
+        2. What are the 2-3 things it MUST do?
+        3. Tech stack — you got opinions or should I pick the good stuff?
+        4. When do you need this? (This week / this month / yesterday)
+
+User: Just me. Paper trading, alerts, stop-losses. You choose. This week.
+
+Claude: Got it. Welcome to the other side — where ideas actually become real.
+
+        Your team is clocking in:
+        🔮 Architect → researching the best approach (8-12 min)
+        ⚒️  Coder → will build the MVP (20-30 min)
+
+        Sit back. You just outsourced the hard part.
+
+        Updates every 5-10 min. Let's cook 🔥
         [Spawns agents]
-        
+
         [5 min later]
-        
-Claude: Research done - going with Yahoo Finance for data.
-        Architecture designed - 3-layer structure.
-        
+
+Claude: Research done — going with Yahoo Finance for data.
+        Architecture designed — 3-layer structure.
+
         [15 min later]
-        
+
 Claude: Data layer complete. Working on trading logic.
 
         [25 min later]
-        
-Claude: MVP ready! Paper trading works.
-        cd trading-bot && python bot.py
+
+Claude: 🎉 Your MVP is ALIVE!
+
+        Take it for a spin:
+        cd trading-bot && python bot.py --paper
         
 User: Can you add stop-losses?
 

@@ -68,15 +68,15 @@ class ProgressStreamer:
             return None
         self._last_component = component
         
-        # Generate casual update based on component
+        # Generate casual update based on component (vibes edition)
         updates = {
-            'project structure': f"Project structure set up. Moving to core modules...",
-            'auth': f"Auth system working. Now building the main features...",
-            'database': f"Database layer done. Connecting the API now...",
-            'api': f"API endpoints ready. Adding the UI components...",
-            'ui': f"UI coming together. Writing tests now...",
-            'tests': f"Tests passing. Doing final cleanup...",
-            'mvp': f"MVP complete! Ready for you to try."
+            'project structure': f"Structure's locked in. On to the fun stuff...",
+            'auth': f"Auth's behaving. Now building the features you actually care about...",
+            'database': f"Database layer: crushed it. Connecting the pipes...",
+            'api': f"API endpoints: fresh and clean. Making it pretty now...",
+            'ui': f"UI coming together nicely. Writing tests so it doesn't break...",
+            'tests': f"Tests passing. Just polishing the rough edges...",
+            'mvp': f"MVP complete! Your baby is ready for the world 🚀"
         }
         
         # Find matching update or generate generic
@@ -109,17 +109,18 @@ class ProgressStreamer:
         return f"{component} complete. {next_component or 'Continuing...'}"
     
     def report_error(self, error: str, suggestions: list, recommendation: str) -> str:
-        """Report error with recovery options"""
-        
-        suggestion_text = "\n".join([f"{i+1}. {s}" for i, s in enumerate(suggestions)])
-        
-        return f"""Hit a snag: {error}
+        """Report error with recovery options (vibes edition)"""
 
-Options:
+        suggestion_text = "\n".join([f"{i+1}. {s}" for i, s in enumerate(suggestions)])
+
+        return f"""Plot twist — hit a little snag with {error}
+
+No stress, we got options:
 {suggestion_text}
 
-I lean toward: {recommendation}
-Sound good?"""
+My gut says: {recommendation}
+
+What feels right?"""
 
 
 class ErrorRecovery:

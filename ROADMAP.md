@@ -17,15 +17,15 @@
 **Solution:** Casual updates every 5-10 minutes
 
 ```
-[5 min] "Research done - going with AlphaVantage API. 
+[5 min] "Research done — going with AlphaVantage API.
          Cheaper than Bloomberg, reliable."
 
-[10 min] "Architecture set - 3-layer design. 
-          Moving to implementation."
+[10 min] "Architecture locked in — 3-layer design.
+          On to the fun stuff..."
 
-[20 min] "Data layer done. Working on trading logic now."
+[20 min] "Data layer: crushed it. Working on trading logic now."
 
-[30 min] "MVP ready! Paper trading works. Want to see it?"
+[30 min] "🎉 MVP is ALIVE! Your baby is ready for the world 🚀"
 ```
 
 **Implementation:**
@@ -44,14 +44,14 @@
 **Solution:** Graceful degradation
 
 ```
-Claude: "Hit a snag - the Yahoo Finance API isn't responding.
-         
-         Options:
+Claude: "Plot twist — Yahoo Finance API is being moody right now.
+
+         No stress, we got options:
          1. Try AlphaVantage instead (slower but reliable)
          2. Skip live data, use mock data for now
          3. Pause and investigate
-         
-         What do you want to do?"
+
+         My gut says option 1. What feels right?"
 ```
 
 **Implementation:**
@@ -74,18 +74,18 @@ Claude: "Hit a snag - the Yahoo Finance API isn't responding.
 User: "Wait, use PostgreSQL instead of SQLite"
 
 Claude: "Got it. Pausing coder agent...
-         
+
          Current state:
          - Data layer: 80% done (SQLite)
          - API layer: Not started
-         
+
          Options:
          1. Finish current task, then switch
          2. Pause now, resume with change
-         3. Rewind to checkpoint (lose current progress)
+         3. Rewind to checkpoint (clean slate)
          4. Start fresh with reference
-         
-         What works?"
+
+         What works for you?"
 ```
 
 **Implementation:**

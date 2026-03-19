@@ -72,10 +72,9 @@ EOF
 echo ""
 echo "✅ Blitz v3 installed!"
 echo ""
-echo "Next steps:"
-echo "1. Start a new Claude Code session"
-echo "2. Say: 'Build me a [project]'"
-echo "3. Answer 3-4 quick questions"
-echo "4. Let Blitz work"
+
+# Run interactive setup
+python3 "${BLITZ_SKILL_DIR}/setup.py"
+
 echo ""
 echo "Documentation: ${BLITZ_SKILL_DIR}/README.md"

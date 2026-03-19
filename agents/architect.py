@@ -1,85 +1,123 @@
 #!/usr/bin/env python3
 """
-Architect Agent - Designs system structure and tech stack
+Architect Agent - Designs system structure
+
+NOW WITH INLINE RESEARCH:
+- Quick survey of options (2-3 alternatives)
+- Recommendation with rationale
+- Designs architecture based on research
 """
 
 from pathlib import Path
 from typing import Dict, Any
 
 class ArchitectAgent:
-    """Background agent that designs system architecture"""
+    """Background agent that designs system architecture + does quick research"""
     
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir)
         self.architecture_file = self.project_dir / "ARCHITECTURE.md"
         self.decisions_file = self.project_dir / ".blitz" / "decisions.md"
     
-    def design(self, requirements: str, research_findings: str = None) -> Dict[str, Any]:
+    def design(self, requirements: str, tech_preference: str = None, features: str = None) -> Dict[str, Any]:
         """
-        Design system architecture
+        Design system architecture with inline research
         
-        Returns prompt for Claude to execute
+        Args:
+            requirements: What needs to be built
+            tech_preference: User's tech preference (if any)
+            features: Key features needed
+            
+        Returns:
+            Agent info with prompt
         """
         return {
-            'prompt': self._generate_prompt(requirements, research_findings),
+            'prompt': self._generate_prompt(requirements, tech_preference, features),
             'output_files': [
                 str(self.architecture_file),
                 str(self.decisions_file)
-            ]
+            ],
+            'estimated_time': '8-12 minutes'
         }
     
-    def _generate_prompt(self, requirements: str, research_findings: str = None) -> str:
-        """Generate the architecture prompt"""
-        research_section = ""
-        if research_findings:
-            research_section = f"""
-Research findings to consider:
-{research_findings}
-"""
+    def _generate_prompt(self, requirements: str, tech_preference: str, features: str) -> str:
+        """Generate the architecture + research prompt"""
         
-        return f"""Design system architecture for:
+        tech_context = ""
+        if tech_preference and tech_preference != "No preference":
+            tech_context = f"\nUser prefers: {tech_preference}\nUse this unless there's a compelling reason not to."
+        
+        features_context = ""
+        if features:
+            features_context = f"\nKey features needed: {features}"
+        
+        return f"""You are the Architect agent for Blitz.
 
+Design system architecture for:
 {requirements}
+{features_context}
+{tech_context}
 
-{research_section}
+## YOUR JOB (8-12 minutes total):
 
+### Step 1: Quick Research (3-4 min)
+Survey the landscape for each major decision:
+- Language/Framework: Compare 2-3 options
+- Database: Compare 2-3 options  
+- Key libraries: What are the popular choices?
+
+For each comparison:
+- Option A: [name] - best for [X], pros/cons
+- Option B: [name] - best for [Y], pros/cons
+- **Recommendation**: [your pick] + why
+
+### Step 2: Architecture Design (5-8 min)
 Create ARCHITECTURE.md at: {self.architecture_file}
 
 Structure:
 # Architecture
 
 ## Tech Stack
-- Language/Framework: [choice + why]
-- Database: [choice + why]  
+For each choice, include WHY:
+- Language/Framework: [choice] - [one-line rationale]
+- Database: [choice] - [one-line rationale]
 - Key Libraries: [list with purpose]
 
 ## Folder Structure
 ```
 project/
-├── [folder]/       # Purpose
-├── [folder]/       # Purpose
-└── README.md       # Entry point
+├── [folder]/       # [purpose]
+├── [folder]/       # [purpose]
+└── [entry point]   # [purpose]
 ```
 
 ## Data Flow
-1. User does X → System does Y → Result Z
+1. [User action] → [System response] → [Result]
 2. ...
 
-## API/Interface Design
-[If applicable - key endpoints or functions]
+## API/Interface
+[Key functions or endpoints]
 
 ## Key Decisions
-[Log each major decision with rationale]
+See [decisions.md](.blitz/decisions.md)
 
-Also log decisions to: {self.decisions_file}
+### Step 3: Log Decisions
+Write to: {self.decisions_file}
 
-Format each decision:
+For each major decision, add:
 ### YYYY-MM-DD: [Decision title]
 **Context:** [What problem we're solving]
 **Decision:** [What we chose]
-**Consequences:** [Impact, trade-offs]
+**Rationale:** [Why this choice]
+**Consequences:** [Trade-offs, limitations]
 
-Keep it simple - this is MVP architecture. No over-engineering.
+## PRINCIPLES:
+- MVP-focused: What's the SIMPLEST thing that works?
+- Prefer boring technology: Battle-tested > bleeding edge
+- Plan for change: Design so parts can be swapped later
+- Document WHY, not just WHAT
+
+Keep it practical. This is MVP architecture, not enterprise over-engineering.
 """
 
 
@@ -92,8 +130,10 @@ if __name__ == "__main__":
     
     project_dir = Path(sys.argv[1])
     requirements = sys.argv[2] if len(sys.argv) > 2 else "Build the project"
+    tech_pref = sys.argv[3] if len(sys.argv) > 3 else None
+    features = sys.argv[4] if len(sys.argv) > 4 else None
     
     agent = ArchitectAgent(project_dir)
-    result = agent.design(requirements)
+    result = agent.design(requirements, tech_pref, features)
     
     print(result['prompt'])

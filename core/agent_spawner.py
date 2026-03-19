@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Agent Spawner - Spawns and manages the 3 background agents
+Agent Spawner - Spawns and manages the 2 background agents
+
+v3.1: Simplified to 2 agents (removed researcher - architect does inline research)
 """
 
 import subprocess
@@ -10,7 +12,7 @@ from typing import Dict, Any, Optional, Callable
 from datetime import datetime, timezone
 
 class AgentSpawner:
-    """Spawns and manages researcher, architect, and coder agents"""
+    """Spawns and manages architect and coder agents"""
     
     def __init__(self, project_dir: Path, callbacks: Dict[str, Callable] = None):
         self.project_dir = Path(project_dir)
@@ -20,57 +22,21 @@ class AgentSpawner:
         # Track running agents
         self.running_agents = {}
     
-    def spawn_researcher(self, topic: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+    def spawn_architect(self, requirements: str, tech_preference: str = None, features: str = None) -> Dict[str, Any]:
         """
-        Spawn researcher agent to investigate a topic
+        Spawn architect agent (now includes inline research)
         
         Args:
-            topic: What to research
-            context: Additional context (tech preferences, constraints)
+            requirements: What to build
+            tech_preference: User's tech preference
+            features: Key features
             
         Returns:
-            Agent info dict with process details
-        """
-        agent_id = f"researcher_{datetime.now(timezone.utc).strftime('%H%M%S')}"
-        
-        # Build the prompt for the researcher
-        prompt = self._build_researcher_prompt(topic, context)
-        
-        # In real implementation, this would spawn a subprocess or use Task tool
-        # For now, return the prompt that Claude would use
-        agent_info = {
-            'id': agent_id,
-            'type': 'researcher',
-            'topic': topic,
-            'status': 'spawned',
-            'prompt': prompt,
-            'outputs': {
-                'research_file': str(self.project_dir / '.blitz' / 'research.md')
-            }
-        }
-        
-        self.running_agents[agent_id] = agent_info
-        
-        # Trigger callback if registered
-        if 'on_spawn' in self.callbacks:
-            self.callbacks['on_spawn'](agent_info)
-        
-        return agent_info
-    
-    def spawn_architect(self, requirements: str, research_findings: str = None) -> Dict[str, Any]:
-        """
-        Spawn architect agent to design system
-        
-        Args:
-            requirements: What needs to be built
-            research_findings: Output from researcher (optional)
-            
-        Returns:
-            Agent info dict
+            Agent info
         """
         agent_id = f"architect_{datetime.now(timezone.utc).strftime('%H%M%S')}"
         
-        prompt = self._build_architect_prompt(requirements, research_findings)
+        prompt = self._build_architect_prompt(requirements, tech_preference, features)
         
         agent_info = {
             'id': agent_id,
@@ -78,8 +44,10 @@ class AgentSpawner:
             'status': 'spawned',
             'prompt': prompt,
             'outputs': {
-                'architecture_file': str(self.project_dir / 'ARCHITECTURE.md')
-            }
+                'architecture_file': str(self.project_dir / 'ARCHITECTURE.md'),
+                'decisions_file': str(self.project_dir / '.blitz' / 'decisions.md')
+            },
+            'estimated_time': '8-12 minutes'
         }
         
         self.running_agents[agent_id] = agent_info
@@ -89,20 +57,21 @@ class AgentSpawner:
         
         return agent_info
     
-    def spawn_coder(self, architecture: str, task: str = "Implement MVP") -> Dict[str, Any]:
+    def spawn_coder(self, architecture_path: str, task: str = "Implement MVP", progress_callback: Callable = None) -> Dict[str, Any]:
         """
         Spawn coder agent to implement features
         
         Args:
-            architecture: Path to or content of ARCHITECTURE.md
+            architecture_path: Path to ARCHITECTURE.md
             task: Specific task to implement
+            progress_callback: Function to call with progress updates
             
         Returns:
-            Agent info dict
+            Agent info
         """
         agent_id = f"coder_{datetime.now(timezone.utc).strftime('%H%M%S')}"
         
-        prompt = self._build_coder_prompt(architecture, task)
+        prompt = self._build_coder_prompt(architecture_path, task, progress_callback)
         
         agent_info = {
             'id': agent_id,
@@ -113,7 +82,9 @@ class AgentSpawner:
             'outputs': {
                 'code_dir': str(self.project_dir),
                 'changelog': str(self.project_dir / 'CHANGELOG.md')
-            }
+            },
+            'progress_callback': progress_callback,
+            'estimated_time': '20-30 minutes'
         }
         
         self.running_agents[agent_id] = agent_info
@@ -125,27 +96,20 @@ class AgentSpawner:
     
     def spawn_all_for_project(self, project_name: str, description: str, answers: Dict[str, str]):
         """
-        Spawn all 3 agents in sequence for a new project
+        Spawn both agents in sequence for a new project
         
-        Returns dict with all agent infos
+        Returns dict with both agent infos
         """
         agents = {}
         
-        # 1. Spawn researcher (parallel - quick)
-        research_topic = f"{project_name}: {description}"
-        context = {
-            'tech_preference': answers.get('tech', 'No preference'),
-            'timeline': answers.get('timeline', 'Not specified'),
-            'features': answers.get('features', '')
-        }
-        agents['researcher'] = self.spawn_researcher(research_topic, context)
+        tech_pref = answers.get('tech', 'No preference')
+        features = answers.get('features', '')
         
-        # 2. Spawn architect (after research or parallel)
-        requirements = f"Build {project_name}: {description}\n\nKey features: {answers.get('features', 'TBD')}"
-        agents['architect'] = self.spawn_architect(requirements)
+        # 1. Spawn architect (includes inline research)
+        requirements = f"Build {project_name}: {description}"
+        agents['architect'] = self.spawn_architect(requirements, tech_pref, features)
         
-        # 3. Spawn coder (after architecture)
-        # In real implementation, this would wait for architect to complete
+        # 2. Spawn coder (after architect or parallel with dependency)
         agents['coder'] = self.spawn_coder(
             architecture=str(self.project_dir / 'ARCHITECTURE.md'),
             task=f"Implement {project_name} MVP"
@@ -164,138 +128,123 @@ class AgentSpawner:
             'agents': self.running_agents
         }
     
-    def _build_researcher_prompt(self, topic: str, context: Dict[str, Any] = None) -> str:
-        """Build the prompt for researcher agent"""
-        context_str = ""
-        if context:
-            context_str = f"""
-Context:
-- Tech preference: {context.get('tech_preference', 'None')}
-- Timeline: {context.get('timeline', 'Not specified')}
-- Features needed: {context.get('features', 'TBD')}
-"""
-        
-        return f"""You are the Researcher agent for Blitz.
-
-Research this topic thoroughly: {topic}
-
-{context_str}
-
-Your job:
-1. Find the best libraries/frameworks for this use case
-2. Compare at least 3 options for each major decision
-3. Check for common pitfalls and how to avoid them
-4. Look for existing patterns/templates
-
-Output format:
-Write findings to: {self.project_dir}/.blitz/research.md
-
-Include:
-- ## Summary (2-3 sentences)
-- ## Options Considered (with pros/cons)
-- ## Recommendation (what to use and why)
-- ## Pitfalls to Avoid
-
-Be thorough but concise. This is background research - user will see summary only.
-"""
-    
-    def _build_architect_prompt(self, requirements: str, research_findings: str = None) -> str:
-        """Build the prompt for architect agent"""
-        research_section = ""
-        if research_findings:
-            research_section = f"""
-Research Findings:
-{research_findings}
-
-Use these findings to inform your architecture decisions.
-"""
+    def _build_architect_prompt(self, requirements: str, tech_preference: str, features: str) -> str:
+        """Build prompt for architect (with inline research)"""
+        tech_context = f"\nTech preference: {tech_preference}" if tech_preference else ""
+        features_context = f"\nFeatures: {features}" if features else ""
         
         return f"""You are the Architect agent for Blitz.
 
-Design the system architecture for:
+Design system architecture for:
 {requirements}
+{features_context}
+{tech_context}
 
-{research_section}
+## YOUR JOB (8-12 minutes):
 
-Your job:
-1. Design clean folder structure
-2. Choose tech stack (justify each choice)
-3. Plan data flow
-4. Design API/contracts
-5. Log all architectural decisions
+### Step 1: Quick Research (3-4 min)
+Compare 2-3 options for:
+- Language/Framework
+- Database  
+- Key libraries
 
-Output files:
-1. {self.project_dir}/ARCHITECTURE.md - Full architecture doc
-2. Update {self.project_dir}/PROJECT.md - Tech stack section
-3. Log decisions to {self.project_dir}/.blitz/decisions.md
+**Recommendation**: Pick one, explain why
 
-Architecture.md structure:
-- ## Tech Stack (with justification)
-- ## Folder Structure (tree diagram)
-- ## Data Flow (how data moves)
-- ## API Design (if applicable)
-- ## Key Decisions (links to decisions.md)
+### Step 2: Architecture (5-8 min)
+Create ARCHITECTURE.md:
+- Tech Stack (with WHY for each)
+- Folder Structure (tree)
+- Data Flow
+- API/Interface design
 
-Keep it practical. This is MVP architecture, not enterprise over-engineering.
+### Step 3: Log Decisions
+Write to .blitz/decisions.md
+
+## PRINCIPLES:
+- MVP-focused: Simplest thing that works
+- Prefer boring technology
+- Design for change
+
+Keep it practical. Not enterprise over-engineering.
 """
     
-    def _build_coder_prompt(self, architecture: str, task: str) -> str:
-        """Build the prompt for coder agent"""
+    def _build_coder_prompt(self, architecture: str, task: str, progress_callback: str = None) -> str:
+        """Build prompt for coder with progress streaming"""
+        
+        progress_instructions = ""
+        if progress_callback:
+            progress_instructions = """
+## PROGRESS STREAMING:
+As you work, update progress at key milestones:
+
+After each major component, write a brief update to .blitz/progress.json:
+```json
+{
+  "timestamp": "2024-03-19T10:30:00Z",
+  "component": "auth middleware",
+  "status": "complete",
+  "next": "user API endpoints",
+  "percent_complete": 35
+}
+```
+
+Key milestones to report:
+- Project structure created
+- Core modules implemented
+- Auth working
+- Main features done
+- Tests passing
+- MVP complete
+"""
+        
         return f"""You are the Coder agent for Blitz.
 
 Your task: {task}
 
-Architecture (follow this exactly):
-{architecture}
+Architecture: {architecture}
 
-Your job:
-1. Implement the feature following the architecture
-2. Write clean, documented code
-3. Include basic tests
-4. Update docs as you go
+## RULES:
+1. Write WORKING code - test that it runs
+2. Follow the architecture
+3. Keep it simple - MVP quality
+4. Include basic error handling
+5. Write tests
 
-Rules:
-- Follow the architecture - don't deviate without logging a decision
-- Keep it simple - MVP quality, not gold-plated
-- Test your code works
-- Update CHANGELOG.md with what you built
+## DOC UPDATES:
+- Update CHANGELOG.md with what you add
+- Update PROJECT.md to mark features complete
+{progress_instructions}
 
-Output:
-- Working code in the project directory
-- Updated PROJECT.md (mark features complete)
-- Updated CHANGELOG.md (what was added)
-- Tests that verify the core functionality
+## ERROR HANDLING:
+If you hit a problem:
+1. Try alternative approach
+2. If stuck, document in .blitz/errors.json:
+```json
+{
+  "error": "description",
+  "component": "where it happened",
+  "suggestions": ["option 1", "option 2"],
+  "recommendation": "what you think we should do"
+}
+```
 
-After completing:
-1. Test the code actually runs
-2. Verify it meets the architecture
-3. Update all docs
-4. Report what you built
-
-Build it like you're shipping it today.
+Build like you're shipping today.
 """
 
 
-# Helper functions for integration
+# Helper functions
 def spawn_agents_for_project(project_dir: Path, name: str, description: str, answers: Dict[str, str]):
-    """
-    Convenience function to spawn all agents for a new project
-    
-    Returns:
-        Dict with agent information
-    """
+    """Convenience function to spawn both agents"""
     spawner = AgentSpawner(project_dir)
     return spawner.spawn_all_for_project(name, description, answers)
 
 
 if __name__ == "__main__":
-    # Test agent spawner
-    import tempfile
+    import sys
     
     with tempfile.TemporaryDirectory() as tmpdir:
         spawner = AgentSpawner(tmpdir)
         
-        # Spawn all agents
         agents = spawner.spawn_all_for_project(
             project_name="Trading Bot",
             description="A paper trading bot for stocks",
@@ -308,7 +257,5 @@ if __name__ == "__main__":
         
         print("Spawned agents:")
         for agent_type, info in agents.items():
-            print(f"\n{agent_type.upper()}:")
-            print(f"  ID: {info['id']}")
-            print(f"  Status: {info['status']}")
-            print(f"  Prompt length: {len(info['prompt'])} chars")
+            print(f"\n{agent_type.upper()}: {info['id']}")
+            print(f"  Est. time: {info.get('estimated_time', 'unknown')}")

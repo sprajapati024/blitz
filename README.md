@@ -4,10 +4,10 @@
 
 ```
 You: "Build me a trading bot"
-Blitz: "Quick questions: 1) Paper or real? 2) Features? 3) Tech preference?"
+Blitz: "Ooh, we're building things now? Love it. Quick vibe check..."
 You: "Paper, alerts + stop-losses, you choose"
 [25 minutes later]
-Blitz: "Done. Try: cd trading-bot && python bot.py --paper"
+Blitz: "🎉 Your MVP is ALIVE! Try: cd trading-bot && python bot.py --paper"
 ```
 
 **No commands. No workflow management. No decision fatigue.** Just building.
@@ -158,6 +158,25 @@ DECISIONS.md: "Chose JWT over sessions"
 
 **Zero manual doc updates.**
 
+### Choose Your Personality
+Blitz adapts to how you like to work. Pick your vibe during setup:
+
+| Tone | Style | Example |
+|------|-------|---------|
+| **Sassy & Fun** | Professional with personality | "Your MVP is ALIVE! 🚀" |
+| **Chill & Casual** | Like a smart friend | "Cool, structure's locked in." |
+| **Professional** | Straight to business | "Project structure complete." |
+| **Minimal** | Just the facts | Updates only when you ask |
+
+### Trust Modes
+How hands-on do you want to be? Blitz grows with you:
+
+| Mode | Behavior | Unlocks After |
+|------|----------|---------------|
+| **Notify** *(default)* | "About to do X — sound good?" | Start |
+| **Auto** | Does it, then tells you | 3 successful projects |
+| **Ghost** | Silent execution, daily summary | 10 successful projects |
+
 ---
 
 ## Quick Start
@@ -170,6 +189,11 @@ cd blitz
 chmod +x install.sh
 ./install.sh
 ```
+
+**Interactive onboarding will guide you through:**
+- ✅ Tone selection (Sassy, Chill, Professional, Minimal)
+- ✅ Trust mode setup (Notify → Auto → Ghost)
+- ✅ Claude Code integration
 
 No Docker. No dependencies. One command.
 
@@ -211,11 +235,12 @@ blitz/
 
 ## Status
 
-**v3.1 — Phase 2 Complete**
+**v3.1 — Interactive Onboarding Live** 🎉
 
 ✅ **Phase 1:** Core engine, 2 agents, Claude integration  
 ✅ **Phase 2:** Progress reporting, error recovery, smart interruptions  
-🔄 **Phase 3:** Trust modes (notify → auto → ghost)
+✅ **Phase 3:** Trust modes (notify → auto → ghost)  
+✅ **New:** Interactive setup with personality selection
 
 ---
 

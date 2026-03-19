@@ -194,48 +194,32 @@ chmod +x install.sh
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║  ⚡️ Welcome to the Other Side, Builder                       ║
-║                                                              ║
-║  You found Blitz — where ideas actually become real.         ║
-║  No more abandoned projects. No more decision fatigue.       ║
-║                                                              ║
+║  ⚡️ BLITZ SETUP                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 
-◆ Step 1: Pick Your Vibe
+◆ Pick Your Vibe
 
-  1. ● Sassy & Fun
-     "Your MVP is ALIVE! 🚀"
+▶ Sassy & Fun [current]
+  Professional with personality. 'Your MVP is ALIVE! 🚀'
 
-  2. ○ Chill & Casual  
-     "Cool, structure's locked in."
+○ Chill & Casual  
+  Like a smart friend. 'Cool, structure's locked in.'
 
-  3. ○ Professional
-     "Project structure complete."
+○ Professional
+  Straight to business. 'Project structure complete.'
 
-  4. ○ Minimal
-     Updates only when you ask
+○ Minimal
+  Just the facts. Updates only when you ask
 
-◆ Step 2: Choose Your Trust Mode
-
-  1. ● Notify Mode
-     Best for: Getting to know Blitz
-
-  2. ○ Auto Mode (unlock after 3 projects)
-     Best for: Regular users
-
-  3. ○ Ghost Mode (unlock after 10 projects)  
-     Best for: Full trust
-
-✓ Preferences saved!
-
-Welcome to the other side. Let's build something awesome.
+↑↓ Navigate  •  Enter Select  •  q Quit
 ```
 
 **Interactive onboarding will guide you through:**
 - ✅ Tone selection (Sassy, Chill, Professional, Minimal)
-- ✅ Trust mode setup (Notify → Auto → Ghost)
+- ✅ Trust mode setup (Notify → Auto → Ghost)  
 - ✅ Claude Code integration
+- 🎮 Arrow key navigation — no typing numbers
+- 🔄 Reconfigure anytime: `blitz config`
 
 No Docker. No dependencies. One command.
 

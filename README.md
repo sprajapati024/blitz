@@ -190,6 +190,48 @@ chmod +x install.sh
 ./install.sh
 ```
 
+### The Onboarding Vibe
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║  ⚡️ Welcome to the Other Side, Builder                       ║
+║                                                              ║
+║  You found Blitz — where ideas actually become real.         ║
+║  No more abandoned projects. No more decision fatigue.       ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+◆ Step 1: Pick Your Vibe
+
+  1. ● Sassy & Fun
+     "Your MVP is ALIVE! 🚀"
+
+  2. ○ Chill & Casual  
+     "Cool, structure's locked in."
+
+  3. ○ Professional
+     "Project structure complete."
+
+  4. ○ Minimal
+     Updates only when you ask
+
+◆ Step 2: Choose Your Trust Mode
+
+  1. ● Notify Mode
+     Best for: Getting to know Blitz
+
+  2. ○ Auto Mode (unlock after 3 projects)
+     Best for: Regular users
+
+  3. ○ Ghost Mode (unlock after 10 projects)  
+     Best for: Full trust
+
+✓ Preferences saved!
+
+Welcome to the other side. Let's build something awesome.
+```
+
 **Interactive onboarding will guide you through:**
 - ✅ Tone selection (Sassy, Chill, Professional, Minimal)
 - ✅ Trust mode setup (Notify → Auto → Ghost)

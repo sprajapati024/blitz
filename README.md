@@ -14,10 +14,10 @@ You want to **vibe code** - describe what you need in plain English and have it 
 
 **Blitz is an invisible control layer for Claude Code.**
 
-Instead of talking directly to Claude, Blitz manages a team of 3 background agents that:
-- Research the best options
-- Design the architecture  
+Instead of talking directly to Claude, Blitz manages a team of background agents that:
+- Design the architecture (with inline research)
 - Implement the code
+- Handle interruptions gracefully
 
 **While you just chat normally.**
 
@@ -36,21 +36,48 @@ Claude: "Quick questions:
 Claude: "Got it. Spinning up team..."
 
 [Background agents working]
+
+[5 min] "Research done - going with AlphaVantage. Cheaper, reliable."
+[15 min] "Architecture set - 3-layer design. Building now..."
+[25 min] "Data layer done. Working on trading logic..."
         
 Claude: "MVP ready! Try: python bot.py --paper"
 ```
 
 **No commands. No `/blitz status`. Just chat.**
 
-## The 3-Agent System
+## The 2-Agent System
 
 | Agent | Does | Auto-Updates |
 |-------|------|--------------|
-| **Researcher** 🔬 | Finds best APIs/libs | `research.md` |
-| **Architect** 📐 | Designs structure | `ARCHITECTURE.md` |
-| **Coder** 💻 | Implements + tests | `CHANGELOG.md`, `PROJECT.md` |
+| **Architect** 📐 | Researches + designs structure | `ARCHITECTURE.md`, `.blitz/decisions.md` |
+| **Coder** 💻 | Implements + tests + progress updates | `CHANGELOG.md`, `PROJECT.md` |
 
 All agents run in background. You get casual progress updates every 5-10 minutes.
+
+## Smart Interruptions
+
+Change your mind mid-build? No problem.
+
+```
+You: "Wait, use PostgreSQL instead of SQLite"
+
+Claude: "Got it. Pausing coder agent...
+
+         Current state:
+         - Data layer: 80% done (SQLite)
+         - API layer: Not started
+
+         Options:
+         1. Finish current task, then switch (no loss)
+         2. Pause now, resume with change (lose 5-10 min)
+         3. Rewind to checkpoint (clean slate)
+         4. Start fresh with reference (keep old code)
+
+         What works?"
+```
+
+**Checkpoints save full file snapshots.** Rewind anytime.
 
 ## Auto-Documentation
 
@@ -65,6 +92,23 @@ DECISIONS.md: "Chose JWT over sessions"
 ```
 
 **Zero manual doc updates. Ever.**
+
+## Error Recovery
+
+When things go wrong, Blitz handles it gracefully:
+
+```
+Claude: "Hit a snag - Yahoo Finance API is down (503).
+
+         Options:
+         1. Switch to AlphaVantage (recommended)
+         2. Use mock data for now
+         3. Add retry logic with backoff
+
+         What do you want to do?"
+```
+
+No crashes. No stack traces. Just options.
 
 ## Installation
 
@@ -96,10 +140,11 @@ Blitz intercepts, asks 3-4 questions, then manages the whole dev process.
 | Others | Blitz |
 |--------|-------|
 | 30+ slash commands | **0 commands** - just chat |
-| 7 agents to manage | **3 background agents** |
+| 7 agents to manage | **2 background agents** |
 | Long interviews | **60-second questions** |
 | Manual doc updates | **100% auto docs** |
-| You manage workflow | **Claude manages it** |
+| Crash on errors | **Graceful recovery** |
+| Lose work on interruption | **Smart checkpoints** |
 
 ## Project Structure
 
@@ -108,15 +153,17 @@ blitz/
 ├── core/
 │   ├── intent_detector.py      # Detects build/fix/update intent
 │   ├── state_manager.py        # Tracks project state
+│   ├── checkpoint_manager.py   # Smart interruptions & rewind
+│   ├── progress_streamer.py    # Natural progress updates
 │   ├── doc_updater.py          # Auto-updates all docs
-│   └── agent_spawner.py        # Spawns 3 background agents
+│   └── agent_spawner.py        # Spawns background agents
 ├── agents/
-│   ├── researcher.py           # Research agent
-│   ├── architect.py            # Architecture agent
+│   ├── architect.py            # Architecture + research agent
 │   └── coder.py                # Implementation agent
 ├── integration/
 │   └── CLAUDE.md               # Claude Code integration
 ├── templates/                   # Doc templates
+├── tests/                       # Integration tests
 ├── install.sh                   # Simple installer
 └── README.md                    # This file
 ```
@@ -125,10 +172,11 @@ blitz/
 
 | Component | Lines | 
 |-----------|-------|
-| Core engine | ~800 |
-| 3 Agents | ~200 |
+| Core engine | ~1,600 |
+| 2 Agents | ~180 |
+| Tests | ~400 |
 | Installer | 81 |
-| **Total** | **~1,100** |
+| **Total** | **~2,300** |
 
 Minimal, focused, actually works.
 
@@ -139,15 +187,16 @@ Minimal, focused, actually works.
 3. **Background execution** - Agents work, you chill
 4. **3 questions max** - 60 seconds, then build
 5. **Interruptible** - "Wait, use X instead" anytime
+6. **Graceful errors** - Options, not crashes
+7. **Real checkpoints** - Full file snapshots, actually restore
 
 ## Status
 
-**v3.0 - Phase 1 Complete**: Core engine, 3 agents, Claude integration
+**v3.1 - Phase 2 Complete**
 
-**Coming:**
-- Natural progress reporting every 5-10 min
-- Trust modes (notify → auto → ghost)
-- Error recovery
+✅ **Phase 1**: Core engine, 2 agents, Claude integration  
+✅ **Phase 2**: Progress reporting, error recovery, smart interruptions  
+🔄 **Phase 3**: Trust modes (notify → auto → ghost) - *Next*
 
 ## The Story
 

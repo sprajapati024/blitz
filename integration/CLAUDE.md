@@ -50,16 +50,16 @@ Tell user you're starting, then spawn agents:
 
 ```
 "Got it. I'm spinning up the team:
-• Researcher - finding best APIs/libraries  
-• Architect - designing the structure
-• Coder - building the MVP
+• Architect - researching + designing structure (8-12 min)
+• Coder - building the MVP (20-30 min)
 
-You'll have something to test in ~20-30 minutes."
+You'll get updates every 5-10 minutes.
+MVP ready in ~30 minutes."
 ```
 
 Spawn agents:
 ```python
-# Spawn all 3 agents
+# Spawn both agents
 agents = spawner.spawn_all_for_project(
     name=name,
     description=description, 
@@ -67,21 +67,16 @@ agents = spawner.spawn_all_for_project(
 )
 
 # Update state
-state_mgr.update_agent_status("researcher", "running")
 state_mgr.update_agent_status("architect", "running")
 state_mgr.update_agent_status("coder", "running")
 ```
 
 ### Step 4: Execute Agents (You run them)
 
-**Researcher (5 min):**
+**Architect (8-12 min):**
 ```
-Read the researcher prompt, research the topic, write to .blitz/research.md
-```
-
-**Architect (10 min):**
-```
-Read architect prompt + research.md, design system, write to ARCHITECTURE.md
+Read architect prompt, do quick research, design system
+Write to ARCHITECTURE.md
 Update PROJECT.md with tech stack
 Log decisions to .blitz/decisions.md
 ```
@@ -90,6 +85,7 @@ Log decisions to .blitz/decisions.md
 ```
 Read coder prompt + ARCHITECTURE.md, implement MVP
 Write code, tests
+Update progress.json at milestones
 Update CHANGELOG.md with what was built
 Update PROJECT.md marking features complete
 ```
@@ -100,14 +96,39 @@ Every 5-10 minutes, give casual updates:
 
 ```
 "Quick update:
-• APIs researched - going with AlphaVantage + yfinance
-• Architecture designed - 3-layer structure
-• Coder is implementing data layer now
+• Architecture done - going with FastAPI + PostgreSQL
+• Coder is implementing auth layer now
 
 ~15 minutes left on MVP."
 ```
 
-### Step 6: Delivery
+Check progress.json for milestone updates:
+```python
+progress_file = project_dir / ".blitz" / "progress.json"
+if progress_file.exists():
+    progress = json.loads(progress_file.read_text())
+    # Report component completion
+```
+
+### Step 6: Handle Interruptions
+
+If user says "Wait..." or wants to change something mid-build:
+
+```python
+# Get interruption options
+result = spawner.handle_user_interrupt(user_request="Use X instead of Y")
+
+# Present options to user
+options = result['options']
+for opt in options:
+    print(f"{opt['id']}: {opt['title']}")
+    print(f"   {opt['data_loss']}")
+
+# Execute chosen option
+spawner.execute_interrupt_option(option_id="rewind", context=result)
+```
+
+### Step 7: Delivery
 
 When done:
 
@@ -133,8 +154,7 @@ User never types `/blitz` anything. They just talk to you.
 
 ### 2. Auto-Documentation
 EVERY agent action updates docs automatically:
-- Researcher → research.md
-- Architect → ARCHITECTURE.md  
+- Architect → ARCHITECTURE.md + decisions.md
 - Coder → CHANGELOG.md + PROJECT.md
 
 Never ask user to update docs.
@@ -143,19 +163,15 @@ Never ask user to update docs.
 Agents work in background. User chats normally. You give casual updates.
 
 ### 4. Interruptible Anytime
-User can say "Wait, use X instead" at any point. You adjust.
+User can say "Wait, use X instead" at any point. You handle via checkpoint system.
 
 ### 5. 3 Questions Max
 No long interviews. 60 seconds of questions, then build.
 
-## Doc Update Rules
+### 6. Graceful Errors
+When agents fail, present 2-3 options. Never crash silently.
 
-When Researcher completes:
-```python
-doc_updater.update_research_section('Summary', findings)
-if recommendation:
-    doc_updater.log_decision(recommendation, context)
-```
+## Doc Update Rules
 
 When Architect completes:
 ```python
@@ -213,6 +229,38 @@ Working on: Live broker integration
 - Daily summary only
 - Interrupt anytime with "wait..."
 
+## Smart Interruptions
+
+When user interrupts mid-build:
+
+1. **Create checkpoint** of current state (auto)
+2. **Present options:**
+   - `continue_then_change` - Finish current, then switch
+   - `pause_resume` - Pause now, resume with change  
+   - `rewind` - Go back to checkpoint
+   - `start_fresh` - Keep reference, rebuild
+
+3. **Execute chosen option**
+
+Example:
+```
+User: "Wait, use PostgreSQL instead of SQLite"
+
+Claude: "Got it. Pausing coder agent...
+
+         Current state:
+         - Data layer: 80% done
+         - API layer: Not started
+
+         Options:
+         1. Finish current task, then switch
+         2. Pause now, resume with change
+         3. Rewind to checkpoint
+         4. Start fresh with reference
+
+         What works?"
+```
+
 ## File Locations
 
 Project docs:
@@ -220,15 +268,29 @@ Project docs:
 - ARCHITECTURE.md - Tech stack, design
 - CHANGELOG.md - What was built
 - .blitz/decisions.md - Why choices were made
-- .blitz/research.md - Research findings
 - .blitz/state.json - Current state
+- .blitz/progress.json - Coder progress updates
+- .blitz/checkpoints/ - File snapshots for rewind
+- .blitz/errors.json - Error log with recovery options
 
 ## Error Handling
 
 If agent fails:
-1. Log error to state.json blockers
-2. Tell user simply: "Hit a snag with X. Options: retry/skip/adjust"
+1. Log error to errors.json with suggestions
+2. Tell user simply: "Hit a snag with X. Options: A/B/C"
 3. Let them decide
+
+Example:
+```
+Claude: "Hit a snag - Yahoo Finance API is down.
+
+         Options:
+         1. Switch to AlphaVantage (recommended)
+         2. Use mock data for now
+         3. Add retry logic
+
+         What do you want to do?"
+```
 
 Never crash silently. Never overwhelm with stack traces.
 
@@ -247,13 +309,16 @@ User: Paper, TSX, email alerts
 Claude: Got it. Spinning up team...
         [Spawns agents]
         
-        [10 min later]
+        [5 min later]
         
-Claude: Update: APIs researched, using Yahoo Finance 
-        for data (free). Architecture done - 3-layer design.
-        Coder building now.
+Claude: Research done - going with Yahoo Finance for data.
+        Architecture designed - 3-layer structure.
         
-        [20 min later]
+        [15 min later]
+        
+Claude: Data layer complete. Working on trading logic.
+
+        [25 min later]
         
 Claude: MVP ready! Paper trading works.
         cd trading-bot && python bot.py
@@ -266,6 +331,20 @@ Claude: Sure, adding that now...
         [5 min later]
         
 Claude: Stop-losses added. Updated CHANGELOG.
+
+User: Wait, I want to use PostgreSQL instead of SQLite
+
+Claude: Got it. Pausing coder...
+
+        Options:
+        1. Finish current task, then migrate
+        2. Pause now, switch to PostgreSQL
+        3. Rewind to checkpoint before database work
+
+User: Option 3
+
+Claude: Restoring checkpoint... done.
+        Now building with PostgreSQL.
 ```
 
 That's it. Just chat. Blitz manages everything else.

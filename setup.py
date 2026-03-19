@@ -9,6 +9,7 @@ import sys
 import json
 from pathlib import Path
 from enum import Enum
+from datetime import datetime, timezone
 
 # Colors for terminal output
 class Colors:
@@ -149,18 +150,24 @@ def select_trust_mode() -> str:
     return selected
 
 def save_preferences(tone: str, trust_mode: str):
-    """Save user preferences"""
-    blitz_dir = Path.home() / ".claude" / "skills" / "blitz-v3"
-    prefs_file = blitz_dir / ".blitz" / "preferences.json"
+    """Save user preferences to ~/.blitz/ where trust_manager expects them"""
+    blitz_home = Path.home() / ".blitz"
+    prefs_file = blitz_home / "preferences.json"
 
     prefs = {
-        "tone": tone,
         "trust_mode": trust_mode,
+        "tone": tone,
         "onboarded": True,
-        "version": "3.1"
+        "version": "3.1",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "settings": {
+            "auto_switch_threshold": True,
+            "ghost_summary_time": "09:00",
+            "progress_update_interval": 300
+        }
     }
 
-    prefs_file.parent.mkdir(parents=True, exist_ok=True)
+    blitz_home.mkdir(parents=True, exist_ok=True)
     prefs_file.write_text(json.dumps(prefs, indent=2))
     print_info(f"Preferences saved to: {prefs_file}")
 

@@ -116,6 +116,10 @@ class TrustManager:
         mode_str = self._preferences.get("trust_mode", TrustMode.NOTIFY.value)
         return TrustMode(mode_str)
     
+    def get_tone(self) -> str:
+        """Get user's preferred tone/personality"""
+        return self._preferences.get("tone", "sassy")  # Default to sassy for personality
+    
     def set_mode(self, mode: TrustMode, force: bool = False) -> Dict[str, Any]:
         """
         Set trust mode

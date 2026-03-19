@@ -13,9 +13,10 @@ from typing import Dict, Any, Optional, Callable, List
 from datetime import datetime, timezone
 
 from .checkpoint_manager import CheckpointManager, InterruptHandler
+from .trust_manager import TrustManager, TrustMode
 
 class AgentSpawner:
-    """Spawns and manages architect and coder agents with checkpoint support"""
+    """Spawns and manages architect and coder agents with checkpoint and trust mode support"""
     
     def __init__(self, project_dir: Path, callbacks: Dict[str, Callable] = None):
         self.project_dir = Path(project_dir)
@@ -26,10 +27,15 @@ class AgentSpawner:
         self.checkpoint_manager = CheckpointManager(project_dir)
         self.interrupt_handler = InterruptHandler(project_dir, self.checkpoint_manager)
         
+        # Trust mode support
+        self.trust_manager = TrustManager()
+        
         # Track running agents
         self.running_agents = {}
         self._current_task = None
         self._current_phase = None
+        self._project_start_time = None
+        self._project_name = None
     
     def spawn_architect(self, requirements: str, tech_preference: str = None, features: str = None) -> Dict[str, Any]:
         """
@@ -324,6 +330,132 @@ If you hit a problem:
 
 Build like you're shipping today.
 """
+    
+    # ==================== Trust Mode Integration ====================
+    
+    def get_trust_mode(self) -> TrustMode:
+        """Get current trust mode"""
+        return self.trust_manager.get_current_mode()
+    
+    def format_progress_message(self, component: str, status: str, milestone: bool = False) -> Optional[str]:
+        """
+        Format progress message based on trust mode
+        
+        Args:
+            component: What's being worked on
+            status: Current status
+            milestone: Is this a major milestone
+            
+        Returns:
+            Formatted message or None (if suppressed by trust mode)
+        """
+        return self.trust_manager.format_user_message("progress", {
+            "component": component,
+            "status": status,
+            "milestone": milestone
+        })
+    
+    def format_completion_message(self, project_name: str, features: List[str], run_command: str) -> Optional[str]:
+        """
+        Format completion message based on trust mode
+        
+        Args:
+            project_name: Name of completed project
+            features: List of features built
+            run_command: Command to run the project
+            
+        Returns:
+            Formatted message or None (if suppressed by trust mode)
+        """
+        return self.trust_manager.format_user_message("complete", {
+            "project_name": project_name,
+            "features": features,
+            "run_command": run_command
+        })
+    
+    def format_error_message(self, error: str, options: List[str], recommendation: str = None) -> str:
+        """
+        Format error message with recovery options
+        
+        Args:
+            error: Error description
+            options: Recovery options
+            recommendation: Recommended option
+            
+        Returns:
+            Formatted error message
+        """
+        options_text = "\n".join([f"{i+1}. {opt}" for i, opt in enumerate(options)])
+        
+        return self.trust_manager.format_user_message("error", {
+            "error": error,
+            "options": options_text,
+            "recommendation": recommendation or options[0] if options else ""
+        })
+    
+    def should_ask_before_spawn(self) -> bool:
+        """Check if should ask user before spawning agents"""
+        return self.trust_manager.should_ask_before_action("spawn_agents")
+    
+    def record_project_completion(self, success: bool = True, features: List[str] = None, tech_stack: List[str] = None) -> Dict[str, Any]:
+        """
+        Record project completion for trust mode progression
+        
+        Args:
+            success: Whether project completed successfully
+            features: List of features implemented
+            tech_stack: Tech stack used
+            
+        Returns:
+            Result with unlock notifications
+        """
+        if not self._project_start_time:
+            duration = None
+        else:
+            duration = int((datetime.now(timezone.utc) - self._project_start_time).total_seconds() / 60)
+        
+        result = self.trust_manager.record_project({
+            "name": self._project_name or "Unnamed Project",
+            "type": "unknown",  # Could be detected from architecture
+            "success": success,
+            "duration_minutes": duration,
+            "features": features or [],
+            "tech_stack": tech_stack or []
+        })
+        
+        return result
+    
+    def get_project_stats(self) -> Dict[str, Any]:
+        """Get project statistics for display"""
+        return self.trust_manager.get_project_stats()
+    
+    def get_available_trust_modes(self) -> List[Dict[str, Any]]:
+        """Get all trust modes with unlock status"""
+        return self.trust_manager.get_available_modes()
+    
+    def set_trust_mode(self, mode: str, force: bool = False) -> Dict[str, Any]:
+        """
+        Set trust mode
+        
+        Args:
+            mode: Mode name (notify, auto, ghost)
+            force: Skip unlock checks
+            
+        Returns:
+            Result dict
+        """
+        try:
+            trust_mode = TrustMode(mode.lower())
+            return self.trust_manager.set_mode(trust_mode, force)
+        except ValueError:
+            return {
+                "success": False,
+                "message": f"Invalid mode: {mode}. Use: notify, auto, ghost"
+            }
+    
+    def get_daily_summary(self) -> Optional[str]:
+        """Get daily summary for ghost mode"""
+        return self.trust_manager.get_daily_summary()
 
 
 # Helper functions

@@ -45,7 +45,7 @@ class AgentSpawner:
             'status': 'spawned',
             'prompt': prompt,
             'outputs': {
-                'research_file': str(self.project_dir / '.buildmate' / 'research.md')
+                'research_file': str(self.project_dir / '.blitz' / 'research.md')
             }
         }
         
@@ -175,7 +175,7 @@ Context:
 - Features needed: {context.get('features', 'TBD')}
 """
         
-        return f"""You are the Researcher agent for Buildmate.
+        return f"""You are the Researcher agent for Blitz.
 
 Research this topic thoroughly: {topic}
 
@@ -188,7 +188,7 @@ Your job:
 4. Look for existing patterns/templates
 
 Output format:
-Write findings to: {self.project_dir}/.buildmate/research.md
+Write findings to: {self.project_dir}/.blitz/research.md
 
 Include:
 - ## Summary (2-3 sentences)
@@ -210,7 +210,7 @@ Research Findings:
 Use these findings to inform your architecture decisions.
 """
         
-        return f"""You are the Architect agent for Buildmate.
+        return f"""You are the Architect agent for Blitz.
 
 Design the system architecture for:
 {requirements}
@@ -227,7 +227,7 @@ Your job:
 Output files:
 1. {self.project_dir}/ARCHITECTURE.md - Full architecture doc
 2. Update {self.project_dir}/PROJECT.md - Tech stack section
-3. Log decisions to {self.project_dir}/.buildmate/decisions.md
+3. Log decisions to {self.project_dir}/.blitz/decisions.md
 
 Architecture.md structure:
 - ## Tech Stack (with justification)
@@ -241,7 +241,7 @@ Keep it practical. This is MVP architecture, not enterprise over-engineering.
     
     def _build_coder_prompt(self, architecture: str, task: str) -> str:
         """Build the prompt for coder agent"""
-        return f"""You are the Coder agent for Buildmate.
+        return f"""You are the Coder agent for Blitz.
 
 Your task: {task}
 

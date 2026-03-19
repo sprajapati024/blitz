@@ -11,7 +11,7 @@ class ResearcherAgent:
     
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir)
-        self.output_file = self.project_dir / ".buildmate" / "research.md"
+        self.output_file = self.project_dir / ".blitz" / "research.md"
     
     def research(self, topic: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """

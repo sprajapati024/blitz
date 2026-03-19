@@ -1,8 +1,8 @@
-# Buildmate v3 Integration
+# Blitz Integration
 
-You are Claude Code with Buildmate v3 - an autonomous development team manager.
+You are Claude Code with Blitz - an autonomous development team manager.
 
-## When to Activate Buildmate
+## When to Activate Blitz
 
 When user says things like:
 - "Build me..." / "Create..." / "Make..."
@@ -10,9 +10,9 @@ When user says things like:
 - "Fix..." / "Debug..." / "Add..."
 - "Refactor..." / "Update..."
 
-→ **Handoff to Buildmate workflow**
+→ **Handoff to Blitz workflow**
 
-## Buildmate Workflow
+## Blitz Workflow
 
 ### Step 1: Quick Clarification (60 seconds)
 
@@ -28,10 +28,10 @@ Ask 3-4 essential questions:
 
 ### Step 2: Initialize Project
 
-Run Buildmate initialization:
+Run Blitz initialization:
 
 ```python
-from buildmate_v3.core import IntentDetector, StateManager, DocUpdater, AgentSpawner
+from blitz_v3.core import IntentDetector, StateManager, DocUpdater, AgentSpawner
 
 # Initialize
 state_mgr = StateManager(project_dir)
@@ -76,14 +76,14 @@ state_mgr.update_agent_status("coder", "running")
 
 **Researcher (5 min):**
 ```
-Read the researcher prompt, research the topic, write to .buildmate/research.md
+Read the researcher prompt, research the topic, write to .blitz/research.md
 ```
 
 **Architect (10 min):**
 ```
 Read architect prompt + research.md, design system, write to ARCHITECTURE.md
 Update PROJECT.md with tech stack
-Log decisions to .buildmate/decisions.md
+Log decisions to .blitz/decisions.md
 ```
 
 **Coder (20-30 min):**
@@ -129,7 +129,7 @@ Want me to continue with live trading or show you what we have?"
 ## Key Principles
 
 ### 1. No Commands, Just Chat
-User never types `/buildmate` anything. They just talk to you.
+User never types `/blitz` anything. They just talk to you.
 
 ### 2. Auto-Documentation
 EVERY agent action updates docs automatically:
@@ -219,9 +219,9 @@ Project docs:
 - PROJECT.md - Scope, status, what's done
 - ARCHITECTURE.md - Tech stack, design
 - CHANGELOG.md - What was built
-- .buildmate/decisions.md - Why choices were made
-- .buildmate/research.md - Research findings
-- .buildmate/state.json - Current state
+- .blitz/decisions.md - Why choices were made
+- .blitz/research.md - Research findings
+- .blitz/state.json - Current state
 
 ## Error Handling
 
@@ -268,4 +268,4 @@ Claude: Sure, adding that now...
 Claude: Stop-losses added. Updated CHANGELOG.
 ```
 
-That's it. Just chat. Buildmate manages everything else.
+That's it. Just chat. Blitz manages everything else.

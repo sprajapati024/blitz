@@ -1,3 +1,3 @@
 """
-Buildmate v3 Integration with Claude Code
+Blitz v3 Integration with Claude Code
 """

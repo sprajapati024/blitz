@@ -18,12 +18,12 @@ class DocUpdater:
             'PROJECT': self.project_dir / 'PROJECT.md',
             'ARCHITECTURE': self.project_dir / 'ARCHITECTURE.md',
             'CHANGELOG': self.project_dir / 'CHANGELOG.md',
-            'DECISIONS': self.project_dir / '.buildmate' / 'decisions.md',
-            'RESEARCH': self.project_dir / '.buildmate' / 'research.md'
+            'DECISIONS': self.project_dir / '.blitz' / 'decisions.md',
+            'RESEARCH': self.project_dir / '.blitz' / 'research.md'
         }
         
-        # Ensure .buildmate dir exists
-        (self.project_dir / '.buildmate').mkdir(parents=True, exist_ok=True)
+        # Ensure .blitz dir exists
+        (self.project_dir / '.blitz').mkdir(parents=True, exist_ok=True)
     
     # ============ PROJECT.md Updates ============
     
@@ -62,7 +62,7 @@ _None_
 
 ## Key Decisions
 <!-- Links to DECISIONS.md -->
-See [decisions.md](.buildmate/decisions.md)
+See [decisions.md](.blitz/decisions.md)
 """
         self._write_file(self.docs['PROJECT'], content)
     
@@ -149,7 +149,7 @@ _TBD_
 
 ## Decisions
 <!-- Links to DECISIONS.md -->
-See [decisions.md](.buildmate/decisions.md)
+See [decisions.md](.blitz/decisions.md)
 
 Last Updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}
 """

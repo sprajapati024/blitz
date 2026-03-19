@@ -133,14 +133,14 @@ class IntentDetector:
     
     def should_intercept(self, message: str, threshold: float = 0.6) -> bool:
         """
-        Decide if Buildmate should take over the conversation
+        Decide if Blitz should take over the conversation
         
         Args:
             message: User's message
             threshold: Minimum confidence to intercept
             
         Returns:
-            True if Buildmate should manage this request
+            True if Blitz should manage this request
         """
         result = self.detect(message)
         return result['confidence'] >= threshold and result['intent'] != IntentType.UNKNOWN

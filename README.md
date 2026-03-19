@@ -1,16 +1,25 @@
-# 🚀 Buildmate v3
+# ⚡️ Blitz
 
 > Autonomous development team that manages everything while you just chat.
 
-## The Difference
+## The Problem
 
-| v2 (Old) | v3 (This) |
-|----------|-----------|
-| 32 commands to learn | 0 commands - just chat |
-| 7 agents to manage | 3 background agents |
-| 5-minute interview | 60-second questions |
-| Manual doc updates | 100% auto documentation |
-| User manages workflow | Claude manages workflow |
+You want to **vibe code** - describe what you need in plain English and have it just work. But:
+- ❌ No structure to how projects start
+- ❌ No guardrails on what gets built
+- ❌ No memory between sessions
+- ❌ Scope creep into infinity
+
+## The Fix
+
+**Blitz is an invisible control layer for Claude Code.**
+
+Instead of talking directly to Claude, Blitz manages a team of 3 background agents that:
+- Research the best options
+- Design the architecture  
+- Implement the code
+
+**While you just chat normally.**
 
 ## How It Works
 
@@ -22,36 +31,51 @@ Claude: "Quick questions:
         2. What features?
         3. Tech preference?"
 
-You: [answers]
+[60 seconds later]
 
 Claude: "Got it. Spinning up team..."
-        
-        [Background agents working]
+
+[Background agents working]
         
 Claude: "MVP ready! Try: python bot.py --paper"
 ```
 
-**That's it. No commands. No `/buildmate status`. Just chat.**
+**No commands. No `/blitz status`. Just chat.**
 
 ## The 3-Agent System
 
-| Agent | Does | Updates |
-|-------|------|---------|
-| **Researcher** | Finds best APIs/libs | `research.md` |
-| **Architect** | Designs structure | `ARCHITECTURE.md` |
-| **Coder** | Implements + tests | `CHANGELOG.md`, `PROJECT.md` |
+| Agent | Does | Auto-Updates |
+|-------|------|--------------|
+| **Researcher** 🔬 | Finds best APIs/libs | `research.md` |
+| **Architect** 📐 | Designs structure | `ARCHITECTURE.md` |
+| **Coder** 💻 | Implements + tests | `CHANGELOG.md`, `PROJECT.md` |
 
 All agents run in background. You get casual progress updates every 5-10 minutes.
+
+## Auto-Documentation
+
+Every agent action updates docs automatically:
+
+```
+Coder writes auth middleware
+  ↓
+CHANGELOG.md: "Added JWT auth"
+PROJECT.md: "Auth done, moving to API"  
+DECISIONS.md: "Chose JWT over sessions"
+```
+
+**Zero manual doc updates. Ever.**
 
 ## Installation
 
 ```bash
-cd buildmate-v3
+git clone https://github.com/sprajapati024/blitz.git
+cd blitz
 chmod +x install.sh
 ./install.sh
 ```
 
-This installs Buildmate as a Claude Code skill and adds the integration hook.
+This installs Blitz as a Claude Code skill and adds the integration hook.
 
 ## Usage
 
@@ -65,26 +89,22 @@ Just talk to Claude Code normally:
 "Refactor the auth system"
 ```
 
-Buildmate intercepts, asks 3-4 questions, then manages the whole dev process.
+Blitz intercepts, asks 3-4 questions, then manages the whole dev process.
 
-## Auto-Documentation
+## What Makes It Different
 
-Every agent action updates docs automatically:
-
-```
-Coder writes auth middleware
-  ↓
-CHANGELOG.md: "Added JWT auth"
-PROJECT.md: "Auth done, moving to API"
-DECISIONS.md: "Chose JWT over sessions"
-```
-
-**Zero manual doc updates. Ever.**
+| Others | Blitz |
+|--------|-------|
+| 30+ slash commands | **0 commands** - just chat |
+| 7 agents to manage | **3 background agents** |
+| Long interviews | **60-second questions** |
+| Manual doc updates | **100% auto docs** |
+| You manage workflow | **Claude manages it** |
 
 ## Project Structure
 
 ```
-buildmate-v3/
+blitz/
 ├── core/
 │   ├── intent_detector.py      # Detects build/fix/update intent
 │   ├── state_manager.py        # Tracks project state
@@ -97,18 +117,20 @@ buildmate-v3/
 ├── integration/
 │   └── CLAUDE.md               # Claude Code integration
 ├── templates/                   # Doc templates
-├── install.sh                   # 50-line installer
+├── install.sh                   # Simple installer
 └── README.md                    # This file
 ```
 
-## File Sizes
+## Size
 
-| Component | Lines | vs v2 |
-|-----------|-------|-------|
-| Core engine | ~800 | -90% |
-| 3 Agents | ~200 | -95% |
-| Installer | 50 | -98% |
-| **Total** | **~1,050** | **-91%** |
+| Component | Lines | 
+|-----------|-------|
+| Core engine | ~800 |
+| 3 Agents | ~200 |
+| Installer | 81 |
+| **Total** | **~1,100** |
+
+Minimal, focused, actually works.
 
 ## Core Principles
 
@@ -118,42 +140,21 @@ buildmate-v3/
 4. **3 questions max** - 60 seconds, then build
 5. **Interruptible** - "Wait, use X instead" anytime
 
-## Comparison
-
-### v2 (Over-engineered)
-```
-User: /buildmate init
-System: 5-minute interview
-User: /buildmate status
-System: Check agent states
-User: /buildmate prd
-System: Show PRD
-User: Manually update docs
-```
-
-### v3 (Streamlined)
-```
-User: "Build me a bot"
-Claude: [3 questions]
-Claude: [Background agents work]
-Claude: "Done! Try it"
-[All docs auto-updated]
-```
-
 ## Status
 
-**Phase 1 Complete**: Core engine, 3 agents, Claude integration
+**v3.0 - Phase 1 Complete**: Core engine, 3 agents, Claude integration
 
-**Coming in Phase 2**: Natural progress reporting, error recovery
+**Coming:**
+- Natural progress reporting every 5-10 min
+- Trust modes (notify → auto → ghost)
+- Error recovery
 
-**Coming in Phase 3**: Trust modes (notify → auto → ghost)
+## The Story
 
-## Why This Approach
+Built after months of chaotic Claude Code sessions. Tried complex orchestration (v2) - 12,000 lines that didn't work. Stripped to essentials (v3) - 1,100 lines that actually ship.
 
-v2 had 12,000 lines describing how AI *should* work. v3 has 1,000 lines that *actually* work.
-
-The insight: **Claude Code is already the orchestrator.** Buildmate shouldn't replace it - it should enhance it with background agents and auto-documentation.
+**The insight:** Claude Code is already the orchestrator. Blitz just adds background agents and auto-documentation.
 
 ---
 
-**Built for vibe coding without chaos.** 🔥
+**Built for vibe coding without chaos.** ⚡️

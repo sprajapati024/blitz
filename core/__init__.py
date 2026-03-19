@@ -1,5 +1,5 @@
 """
-Buildmate v3 - Autonomous Development Team
+Blitz v3 - Autonomous Development Team
 Core module for intent detection, agent spawning, and doc management.
 """
 

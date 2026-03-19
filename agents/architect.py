@@ -12,7 +12,7 @@ class ArchitectAgent:
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir)
         self.architecture_file = self.project_dir / "ARCHITECTURE.md"
-        self.decisions_file = self.project_dir / ".buildmate" / "decisions.md"
+        self.decisions_file = self.project_dir / ".blitz" / "decisions.md"
     
     def design(self, requirements: str, research_findings: str = None) -> Dict[str, Any]:
         """

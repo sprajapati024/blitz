@@ -1,5 +1,5 @@
 """
-Buildmate v3 Agents
+Blitz v3 Agents
 """
 
 from .researcher import ResearcherAgent

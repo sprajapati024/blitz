@@ -24,11 +24,11 @@ class StateManager:
     
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir)
-        self.buildmate_dir = self.project_dir / ".buildmate"
-        self.state_file = self.buildmate_dir / "state.json"
+        self.blitz_dir = self.project_dir / ".blitz"
+        self.state_file = self.blitz_dir / "state.json"
         
-        # Ensure buildmate directory exists
-        self.buildmate_dir.mkdir(parents=True, exist_ok=True)
+        # Ensure blitz directory exists
+        self.blitz_dir.mkdir(parents=True, exist_ok=True)
     
     def initialize_project(self, name: str, description: str, answers: Dict[str, str]) -> Dict[str, Any]:
         """

@@ -65,7 +65,7 @@ Claude: "Hit a snag - the Yahoo Finance API isn't responding.
 
 ---
 
-### 2.3 Smart Interruptions
+### 2.3 Smart Interruptions ✅ COMPLETE
 **Problem:** User wants to change direction mid-build
 
 **Solution:** Pause/resume gracefully
@@ -80,20 +80,29 @@ Claude: "Got it. Pausing coder agent...
          - API layer: Not started
          
          Options:
-         1. Continue with SQLite, migrate later
-         2. Restart data layer with PostgreSQL
-         3. Finish current task, then switch
+         1. Finish current task, then switch
+         2. Pause now, resume with change
+         3. Rewind to checkpoint (lose current progress)
+         4. Start fresh with reference
          
          What works?"
 ```
 
 **Implementation:**
-- Checkpoints before each major task
-- State saved to `.blitz/checkpoints/`
-- Can rewind to any checkpoint
-- Shows what would be lost
+- ✅ Checkpoints before each major task (auto + manual)
+- ✅ Full file snapshots saved to `.blitz/checkpoints/`
+- ✅ Can rewind to any checkpoint
+- ✅ Dry-run compare shows what would be lost
+- ✅ Pause/resume agent state
+- ✅ Thread-safe concurrent operations
+- ✅ Registry persists across restarts
 
-**Effort:** 4-5 days
+**Files:**
+- `core/checkpoint_manager.py` - 900 lines, full implementation
+- `core/agent_spawner.py` - Integrated checkpoint methods
+- `tests/test_checkpoint_integration.py` - 7 passing tests
+
+**Effort:** 4-5 days ✅ Done in 1 session
 **Value:** Medium-High - flexibility without chaos
 
 ---

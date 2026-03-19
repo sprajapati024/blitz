@@ -3,24 +3,33 @@
 Agent Spawner - Spawns and manages the 2 background agents
 
 v3.1: Simplified to 2 agents (removed researcher - architect does inline research)
+v3.2: Added checkpoint integration for smart interruptions
 """
 
 import subprocess
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable, List
 from datetime import datetime, timezone
 
+from .checkpoint_manager import CheckpointManager, InterruptHandler
+
 class AgentSpawner:
-    """Spawns and manages architect and coder agents"""
+    """Spawns and manages architect and coder agents with checkpoint support"""
     
     def __init__(self, project_dir: Path, callbacks: Dict[str, Callable] = None):
         self.project_dir = Path(project_dir)
         self.agents_dir = Path(__file__).parent.parent / "agents"
         self.callbacks = callbacks or {}
         
+        # Checkpoint support
+        self.checkpoint_manager = CheckpointManager(project_dir)
+        self.interrupt_handler = InterruptHandler(project_dir, self.checkpoint_manager)
+        
         # Track running agents
         self.running_agents = {}
+        self._current_task = None
+        self._current_phase = None
     
     def spawn_architect(self, requirements: str, tech_preference: str = None, features: str = None) -> Dict[str, Any]:
         """
@@ -34,6 +43,9 @@ class AgentSpawner:
         Returns:
             Agent info
         """
+        self._current_phase = 'designing'
+        self._current_task = f"Architecture for: {requirements[:50]}..."
+        
         agent_id = f"architect_{datetime.now(timezone.utc).strftime('%H%M%S')}"
         
         prompt = self._build_architect_prompt(requirements, tech_preference, features)
@@ -69,6 +81,19 @@ class AgentSpawner:
         Returns:
             Agent info
         """
+        self._current_phase = 'coding'
+        self._current_task = task
+        
+        # Create checkpoint before starting coder
+        checkpoint = self.checkpoint_manager.create_checkpoint(
+            name="before_coding",
+            description=f"Before starting: {task}",
+            agent_status={k: v.get('status', 'idle') for k, v in self.running_agents.items()},
+            current_tasks=[task],
+            completed_tasks=[],
+            phase='coding'
+        )
+        
         agent_id = f"coder_{datetime.now(timezone.utc).strftime('%H%M%S')}"
         
         prompt = self._build_coder_prompt(architecture_path, task, progress_callback)
@@ -84,7 +109,8 @@ class AgentSpawner:
                 'changelog': str(self.project_dir / 'CHANGELOG.md')
             },
             'progress_callback': progress_callback,
-            'estimated_time': '20-30 minutes'
+            'estimated_time': '20-30 minutes',
+            'checkpoint_id': checkpoint.id
         }
         
         self.running_agents[agent_id] = agent_info
@@ -127,6 +153,74 @@ class AgentSpawner:
             'running': len(self.running_agents),
             'agents': self.running_agents
         }
+    
+    # ===== Checkpoint/Interruption Methods =====
+    
+    def handle_user_interrupt(self, user_request: str) -> Dict[str, Any]:
+        """
+        Handle user interruption mid-build.
+        
+        Args:
+            user_request: What the user wants to change
+            
+        Returns:
+            Dict with options and context
+        """
+        agent_status = {k: v.get('status', 'idle') for k, v in self.running_agents.items()}
+        
+        return self.interrupt_handler.handle_interrupt(
+            user_request=user_request,
+            current_phase=self._current_phase or 'unknown',
+            current_task=self._current_task or 'unknown',
+            agent_status=agent_status,
+            completed_tasks=[]  # Would track from state manager
+        )
+    
+    def execute_interrupt_option(self, option_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Execute chosen interruption option.
+        
+        Args:
+            option_id: Option chosen by user
+            context: Additional context from handle_user_interrupt
+            
+        Returns:
+            Result of the action
+        """
+        return self.interrupt_handler.execute_option(option_id, context)
+    
+    def create_manual_checkpoint(self, name: str, description: str) -> Dict[str, Any]:
+        """Create a checkpoint on demand"""
+        agent_status = {k: v.get('status', 'idle') for k, v in self.running_agents.items()}
+        
+        checkpoint = self.checkpoint_manager.create_checkpoint(
+            name=name,
+            description=description,
+            agent_status=agent_status,
+            current_tasks=[self._current_task] if self._current_task else [],
+            completed_tasks=[],
+            phase=self._current_phase or 'unknown'
+        )
+        
+        return {
+            'success': True,
+            'checkpoint_id': checkpoint.id,
+            'files_count': checkpoint.files_count,
+            'timestamp': checkpoint.timestamp
+        }
+    
+    def list_checkpoints(self) -> List[Dict[str, Any]]:
+        """List all available checkpoints"""
+        checkpoints = self.checkpoint_manager.list_checkpoints()
+        return [cp.to_dict() for cp in checkpoints]
+    
+    def restore_checkpoint(self, checkpoint_id: str, dry_run: bool = False) -> Dict[str, Any]:
+        """Restore to a checkpoint"""
+        return self.checkpoint_manager.restore_checkpoint(checkpoint_id, dry_run)
+    
+    def compare_checkpoint(self, checkpoint_id: str) -> Dict[str, Any]:
+        """Compare current state to checkpoint"""
+        return self.checkpoint_manager.compare_checkpoint(checkpoint_id)
     
     def _build_architect_prompt(self, requirements: str, tech_preference: str, features: str) -> str:
         """Build prompt for architect (with inline research)"""

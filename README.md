@@ -1,56 +1,53 @@
 # Blitz
 
-> **"I just wanted to build a trading bot. Three hours later I was still debating folder structure."**
+> **The development autopilot. You describe what you want. Blitz handles research, architecture, and building — all in the background.**
 
-Sound familiar?
+```
+You: "Build me a trading bot"
+Blitz: "Quick questions: 1) Paper or real? 2) Features? 3) Tech preference?"
+You: "Paper, alerts + stop-losses, you choose"
+[25 minutes later]
+Blitz: "Done. Try: cd trading-bot && python bot.py --paper"
+```
+
+**No commands. No workflow management. No decision fatigue.** Just building.
+
+---
 
 ## The Problem
 
-You have an idea. You want to build it. But instead of coding, you get stuck in:
-- Deciding folder structure
+> *"I just wanted to build a trading bot. Three hours later I was still debating folder structure."*
+
+You have an idea. You want to build it. But instead of coding, you get stuck in the meta-work:
 - Researching which database to use
+- Deciding folder structure  
 - Documenting why you chose X over Y
 - Managing the project's chaos
 
-**The work before the work.** It kills momentum.
+**The work before the work kills momentum.**
+
+---
 
 ## The Solution
 
 **Blitz streamlines development by handling everything in the background.**
 
-You describe what you want. Blitz asks 3 quick questions. Then it manages a team of agents that research, design, and build while you focus on the project itself.
+You describe what you want → Blitz asks 3 questions → Background agents research, design, and build → You get progress updates → MVP delivered.
 
-**No commands. No setup. No decision fatigue.** Just building.
+**While you focus on the project itself, Blitz handles:**
 
-```
-You: "Build me a habit tracker"
-
-Blitz: "Quick questions: 1) Who's using it? 2) Key features? 3) Tech preference?"
-
-You: "Just me, daily check-ins and streaks, you choose"
-
-Blitz: "Got it. Spinning up team..."
-
-[20 minutes later]
-
-Blitz: "Done. Try it: cd habit-tracker && python main.py"
-```
-
-**You didn't manage a workflow. You didn't update documentation. You didn't coordinate agents.** You just described what you wanted, and it got built.
+| Background Task | How Blitz Handles It |
+|-----------------|----------------------|
+| Research | Architect agent compares options, picks best |
+| Architecture | Auto-generates `ARCHITECTURE.md` with rationale |
+| Building | Coder agent implements with progress streaming |
+| Documentation | Every action updates `CHANGELOG.md`, `PROJECT.md` |
+| Errors | Graceful recovery with 2-3 options, never crashes |
+| Changes of mind | Real checkpoints — rewind anytime |
 
 ---
 
-## Why I Built This
-
-> *"I was spending more time managing the development process than actually developing. 'What's the best folder structure?' 'Should I use SQLite or Postgres?' 'Wait, did we document why we chose FastAPI?' Every session started with 30 minutes of meta-work."*
-> 
-> **— After my 50th abandoned side project**
-
-I tried complex orchestration. 12,000 lines that broke constantly. Stripped it down to what actually works: **a system that handles the background work so you can focus on building.**
-
----
-
-## The Chaos vs. The Calm
+## Before & After
 
 ### Without Blitz ❌
 
@@ -64,139 +61,108 @@ my-project/
 │   ├── backup_main.py
 │   └── backup_utils.py
 ├── ideas.md         # Notes from 3 sessions ago
-├── todo.txt         # Outdated
 └── README.md        # Empty
 
-Result: 6 hours in, nothing deployable, forgot why you started
+Result: 6 hours, nothing deployable, forgot why you started
 ```
 
 ### With Blitz ✅
 
 ```
-habit-tracker/
+trading-bot/
 ├── src/
-│   ├── __init__.py
 │   ├── main.py          # Clean entry point
-│   ├── cli.py           # Typer commands
-│   ├── models.py        # SQLAlchemy models
-│   └── tracker.py       # Core logic
+│   ├── data.py          # Price fetching
+│   └── trading.py       # Paper trading logic
 ├── tests/
-│   ├── test_tracker.py
-│   └── test_cli.py
-├── docs/
-│   └── ARCHITECTURE.md  # Why we chose SQLite + Typer
+│   └── test_trading.py
 ├── .blitz/
 │   ├── state.json       # Project status
-│   ├── decisions.md     # "Chose SQLite over Postgres (MVP)"
+│   ├── decisions.md     # Why we chose X
 │   └── checkpoints/     # Rewind to any point
-├── CHANGELOG.md         # What got built when
-├── PROJECT.md           # Scope & progress
-└── README.md            # Actually useful
+├── ARCHITECTURE.md      # Full design
+├── CHANGELOG.md         # What got built
+└── PROJECT.md           # Scope & progress
 
-Result: 30 minutes in, MVP running, full context preserved
+Result: 30 minutes, MVP running, full context preserved
 ```
-
-**Same effort. Completely different outcome.**
 
 ---
 
-## How It Actually Works
-
-### The 60-Second Setup
-
-```
-You: "Build me a trading bot"
-
-Blitz: "Quick questions:
-        1. Paper or real money?
-        2. What features? (pick 2-3)
-        3. Any tech preference or I choose?"
-
-You: "Paper, price alerts + stop-losses, you choose"
-
-Blitz: "Got it. Spinning up team..."
-```
-
-### What Happens Next
+## The Timeline
 
 | Time | What You See | What's Happening |
 |------|--------------|------------------|
-| **0:00** | *"Spinning up team..."* | Architect agent starts researching APIs |
-| **0:08** | *"Research done - going with AlphaVantage. Free tier, reliable."* | Architect designs 3-layer structure |
-| **0:15** | *"Architecture set. Coder building data layer..."* | Coder implements price fetching |
-| **0:25** | *"Data layer done. Working on trading logic..."* | Stop-loss engine coming together |
-| **0:30** | *"MVP ready! Try: `python bot.py --paper --ticker AAPL`"* | Tests passing, docs updated |
+| **0:00** | *"Spinning up team..."* | Architect researching APIs |
+| **0:08** | *"Research done — going with AlphaVantage"* | Designing 3-layer structure |
+| **0:15** | *"Architecture set. Building data layer..."* | Coder implementing |
+| **0:25** | *"Data layer done. Trading logic next..."* | Stop-loss engine |
+| **0:30** | *"MVP ready! Try: python bot.py --paper"* | Tests passing, docs updated |
 
-**You didn't type a single command.** You focused on what you were building while Blitz handled everything in the background.
+**You didn't type a command. You didn't manage agents. You just described what you wanted.**
 
 ---
 
-## The Streamlined Experience
+## Why I Built This
 
-### 1. Change Your Mind Mid-Build
+> *"I was spending more time managing the development process than actually developing. Every session started with 30 minutes of yak shaving — folder structure, tech choices, documentation. I tried complex orchestration (12,000 lines that broke constantly). Stripped it down to what actually works: a system that handles the background work so I can focus on building."*
+
+**— After my 50th abandoned side project**
+
+---
+
+## Key Features
+
+### Smart Interruptions
+Change your mind mid-build? No problem.
 
 ```
 You: "Wait, use PostgreSQL instead of SQLite"
 
-Blitz: "Got it. Pausing coder...
-
-        Current state:
-        - Data layer: 80% done (SQLite)
+Blitz: "Got it. Current state: data layer 80% done.
         
         Options:
         1. Finish task, then migrate (no loss)
-        2. Pause now, switch (lose 5 min)
+        2. Pause now, switch (lose 5 min)  
         3. Rewind to checkpoint (clean slate)
         
         What works?"
 ```
 
-**Checkpoints are real.** Full file snapshots. Rewind anytime. Blitz handles the complexity.
+**Real checkpoints.** Full file snapshots. Rewind anytime.
 
-### 2. When Things Go Wrong
+### Graceful Errors
+When things go wrong, you get options — not crashes.
 
 ```
-Blitz: "Hit a snag - Yahoo Finance API is down (503).
+Blitz: "Hit a snag — Yahoo Finance API down (503).
 
         Options:
         1. Switch to AlphaVantage (recommended)
-        2. Use mock data for now  
+        2. Use mock data for now
         3. Add retry logic
 
         What do you want to do?"
 ```
 
-**No crashes.** No stack traces in your chat. Just options. Blitz manages the recovery.
-
-### 3. Documentation Just... Happens
+### Auto-Documentation
+Documentation happens automatically. Every action updates the right file.
 
 ```
 Coder writes auth middleware
   ↓
-CHANGELOG.md: "Added JWT auth with refresh tokens"
-PROJECT.md:   "✓ Auth complete → starting API layer"
-DECISIONS.md: "Chose JWT over sessions (stateless, simpler)"
+CHANGELOG.md: "Added JWT auth"
+PROJECT.md:   "✓ Auth complete"
+DECISIONS.md: "Chose JWT over sessions"
 ```
 
-**Zero manual doc updates.** Context is preserved automatically in the background.
+**Zero manual doc updates.**
 
 ---
 
-## Real Talk: What This Actually Solves
+## Quick Start
 
-| Without Blitz | With Blitz |
-|---------------|------------|
-| 30 min debating folder structure | 60 seconds of questions, then building |
-| "Wait, why did we choose X?" | Decisions auto-logged, context always available |
-| Lost work when changing approach | Rewind to any checkpoint, change direction freely |
-| Documentation? Maybe later. | Every action updates docs automatically |
-| Crashes kill the momentum | Graceful recovery with clear options |
-| Managing the process | Just focusing on the project |
-| 6 hours, nothing deployable | 30 minutes, MVP running |
-
----
-
-## Installation
+### Install
 
 ```bash
 git clone https://github.com/sprajapati024/blitz.git
@@ -205,39 +171,21 @@ chmod +x install.sh
 ./install.sh
 ```
 
-That's it. No Docker. No Python env setup. No config files.
+No Docker. No dependencies. One command.
 
----
+### Use
 
-## Usage
-
-Literally just describe what you want:
+Just describe what you want:
 
 ```
 "Build me a habit tracker"
-"Create a Twitter bot that posts daily"
-"Fix the login bug in my Flask app"
-"Add email notifications to the trading bot"
-"Refactor the auth system to use OAuth"
+"Create a Twitter bot"
+"Fix the login bug"
+"Add notifications"
+"Refactor to OAuth"
 ```
 
-**Zero commands.** Zero context switching. Zero workflow management. Just describe what you want and Blitz handles everything in the background.
-
----
-
-## The Philosophy
-
-> *"I don't want to manage agents. I don't want to write prompts. I don't want to update documentation. I just want to focus on building things and have them work."*
-
-Blitz is **invisible infrastructure.** It handles the coordination, the documentation, the state management — all in the background — so you can stay focused on the actual project.
-
-**Principles:**
-1. **No commands** — Everything through natural chat
-2. **60 seconds max** — Questions, not interviews  
-3. **Background execution** — You focus on building, Blitz handles the rest
-4. **Interruptible** — Change direction anytime
-5. **Auto-docs** — Context preserved automatically
-6. **Graceless errors** — Options, not crashes
+**That's it.** Blitz handles everything in the background.
 
 ---
 
@@ -246,25 +194,22 @@ Blitz is **invisible infrastructure.** It handles the coordination, the document
 ```
 blitz/
 ├── core/
-│   ├── intent_detector.py      # "Is this a build request?"
 │   ├── checkpoint_manager.py   # Pause, resume, rewind
-│   ├── progress_streamer.py    # Natural language updates
-│   ├── agent_spawner.py        # Spawns architect + coder
+│   ├── progress_streamer.py    # Natural updates
+│   ├── agent_spawner.py        # Spawns agents
 │   ├── state_manager.py        # Tracks everything
-│   └── doc_updater.py          # Auto-updates docs
+│   └── doc_updater.py          # Auto-docs
 ├── agents/
-│   ├── architect.py            # Research + design (8-12 min)
-│   └── coder.py                # Build + test (20-30 min)
-├── integration/
-│   └── CLAUDE.md               # Claude Code integration guide
-└── tests/                      # Integration tests (7/7 passing)
+│   ├── architect.py            # Research + design
+│   └── coder.py                # Build + test
+└── tests/                      # 7 integration tests
 ```
 
-**~2,500 lines.** No bloat. No enterprise patterns. Just what works.
+**~2,500 lines.** No bloat. Just what works.
 
 ---
 
-## Current Status
+## Status
 
 **v3.1 — Phase 2 Complete**
 
@@ -272,21 +217,19 @@ blitz/
 ✅ **Phase 2:** Progress reporting, error recovery, smart interruptions  
 🔄 **Phase 3:** Trust modes (notify → auto → ghost)
 
-**Stable.** **Tested.** **Actually used.**
-
 ---
 
-## The Story
+## The Philosophy
 
-Built after months of chaotic development sessions. v1 was duct tape. v2 was 12,000 lines of over-engineering that broke constantly. v3 is what survived — the essential 10% that delivers 90% of the value.
+> *"I don't want to manage agents. I don't want to write prompts. I don't want to update documentation. I just want to focus on building things and have them work."*
 
-**The insight:** Claude Code is already powerful. Blitz just adds:
-- Background agents that research/design/build
-- Smart interruptions with real checkpoints  
-- Auto-documentation so context never dies
-- Graceful errors that don't kill momentum
-
-All running in the background while you focus on the project.
+**Principles:**
+1. **No commands** — Natural chat only
+2. **60 seconds max** — Questions, not interviews  
+3. **Background execution** — You build, Blitz handles the rest
+4. **Interruptible** — Change direction anytime
+5. **Auto-docs** — Context preserved automatically
+6. **Graceful errors** — Options, not crashes
 
 ---
 

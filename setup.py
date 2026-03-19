@@ -1,225 +1,347 @@
 #!/usr/bin/env python3
 """
 Blitz v3 Setup Wizard
-Interactive onboarding when installing Blitz
+Interactive onboarding with curses arrow key navigation
 """
 
 import os
 import sys
 import json
+import curses
 from pathlib import Path
-from enum import Enum
 from datetime import datetime, timezone
 
-# Colors for terminal output
+# ============================================================================
+# Colors for non-curses fallback
+# ============================================================================
 class Colors:
-    GOLD = "\033[1;33m"
-    CYAN = "\033[1;36m"
-    GREEN = "\033[1;32m"
-    YELLOW = "\033[1;33m"
-    RED = "\033[1;31m"
+    GOLD = "\033[38;5;220m"
+    CYAN = "\033[38;5;51m"
+    GREEN = "\033[38;5;82m"
+    YELLOW = "\033[38;5;227m"
+    RED = "\033[38;5;196m"
+    MAGENTA = "\033[38;5;201m"
+    ORANGE = "\033[38;5;208m"
     BOLD = "\033[1m"
     DIM = "\033[2m"
     RESET = "\033[0m"
 
-def print_header(text: str):
-    """Print a styled header"""
-    print(f"\n{Colors.CYAN}◆ {text}{Colors.RESET}")
+# ============================================================================
+# Curses-based Interactive Menu
+# ============================================================================
 
-def print_success(text: str):
-    """Print success message"""
-    print(f"{Colors.GREEN}✓ {text}{Colors.RESET}")
+def curses_menu(stdscr, title: str, options: list, descriptions: list = None, 
+                current_idx: int = 0, show_current: str = None) -> int:
+    """
+    Display an interactive menu with arrow key navigation
+    
+    Args:
+        stdscr: curses window
+        title: Menu title
+        options: List of option strings
+        descriptions: Optional list of descriptions for each option
+        current_idx: Default selected index
+        show_current: Text to show as [current] next to current selection
+    
+    Returns:
+        Selected index
+    """
+    curses.curs_set(0)  # Hide cursor
+    stdscr.clear()
+    
+    # Enable colors
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_CYAN, -1)      # Title
+    curses.init_pair(2, curses.COLOR_GREEN, -1)     # Selected
+    curses.init_pair(3, curses.COLOR_WHITE, -1)     # Normal
+    curses.init_pair(4, curses.COLOR_YELLOW, -1)    # Highlight
+    curses.init_pair(5, 245, -1)                    # Dim
+    curses.init_pair(6, curses.COLOR_MAGENTA, -1)   # Accent
+    
+    selected = current_idx
+    
+    while True:
+        stdscr.clear()
+        height, width = stdscr.getmaxyx()
+        
+        # Draw banner top
+        banner_text = "⚡️ BLITZ SETUP"
+        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
+        stdscr.addstr(1, (width - len(banner_text)) // 2, banner_text)
+        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
+        
+        # Draw separator line
+        stdscr.attron(curses.color_pair(5))
+        stdscr.addstr(2, 2, "─" * (width - 4))
+        stdscr.attroff(curses.color_pair(5))
+        
+        # Draw title
+        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
+        stdscr.addstr(4, 4, f"◆ {title}")
+        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
+        
+        # Draw options
+        start_y = 6
+        for i, option in enumerate(options):
+            y = start_y + i * 2
+            
+            if i == selected:
+                # Selected item
+                arrow = "▶"
+                stdscr.attron(curses.color_pair(2) | curses.A_BOLD)
+                stdscr.addstr(y, 4, f"{arrow} {option}")
+                if show_current and i == current_idx:
+                    stdscr.addstr(y, 4 + len(arrow) + len(option) + 2, "[current]")
+                stdscr.attroff(curses.color_pair(2) | curses.A_BOLD)
+                
+                # Description
+                if descriptions and i < len(descriptions):
+                    stdscr.attron(curses.color_pair(5))
+                    stdscr.addstr(y + 1, 8, descriptions[i])
+                    stdscr.attroff(curses.color_pair(5))
+            else:
+                # Unselected item
+                arrow = "○"
+                stdscr.attron(curses.color_pair(3))
+                stdscr.addstr(y, 4, f"{arrow} {option}")
+                if show_current and i == current_idx:
+                    stdscr.attron(curses.color_pair(6))
+                    stdscr.addstr(y, 4 + len(arrow) + len(option) + 2, "[current]")
+                    stdscr.attroff(curses.color_pair(6))
+                stdscr.attroff(curses.color_pair(3))
+                
+                # Description
+                if descriptions and i < len(descriptions):
+                    stdscr.attron(curses.color_pair(5))
+                    stdscr.addstr(y + 1, 8, descriptions[i])
+                    stdscr.attroff(curses.color_pair(5))
+        
+        # Draw footer
+        footer_y = height - 2
+        stdscr.attron(curses.color_pair(5))
+        stdscr.addstr(footer_y, 4, "↑↓ Navigate  •  Enter Select  •  q Quit")
+        stdscr.attroff(curses.color_pair(5))
+        
+        stdscr.refresh()
+        
+        # Handle input
+        key = stdscr.getch()
+        
+        if key in (curses.KEY_UP, ord('k')):
+            selected = (selected - 1) % len(options)
+        elif key in (curses.KEY_DOWN, ord('j')):
+            selected = (selected + 1) % len(options)
+        elif key in (curses.KEY_ENTER, 10, 13):
+            return selected
+        elif key in (27, ord('q')):  # ESC or q
+            return current_idx
 
-def print_warning(text: str):
-    """Print warning message"""
-    print(f"{Colors.YELLOW}⚠ {text}{Colors.RESET}")
-
-def print_error(text: str):
-    """Print error message"""
-    print(f"{Colors.RED}✗ {text}{Colors.RESET}")
-
-def print_info(text: str):
-    """Print info text"""
-    print(f"{Colors.DIM}  {text}{Colors.RESET}")
-
-def prompt(question: str, default: str = None) -> str:
-    """Prompt for input"""
-    if default:
-        display = f"{Colors.YELLOW}{question} [{default}]: {Colors.RESET}"
-    else:
-        display = f"{Colors.YELLOW}{question}: {Colors.RESET}"
+def run_curses_menu(title: str, options: list, descriptions: list = None, 
+                    current_idx: int = 0, show_current: str = None) -> int:
+    """Wrapper to run curses menu with fallback"""
     try:
-        value = input(display).strip()
-        return value or default or ""
-    except (KeyboardInterrupt, EOFError):
-        print()
-        sys.exit(1)
+        return curses.wrapper(curses_menu, title, options, descriptions, current_idx, show_current)
+    except:
+        # Fallback to simple input if curses fails
+        return fallback_menu(title, options, descriptions, current_idx)
 
-def prompt_choice(question: str, choices: list, default: int = 0) -> int:
-    """Prompt for a choice from a list"""
-    print(f"\n{Colors.CYAN}{question}{Colors.RESET}")
-    for i, choice in enumerate(choices):
-        marker = "●" if i == default else "○"
-        if i == default:
-            print(f"  {Colors.GREEN}{marker} {choice}{Colors.RESET}")
+def fallback_menu(title: str, options: list, descriptions: list = None, current_idx: int = 0) -> int:
+    """Fallback menu for non-TTY environments"""
+    print(f"\n{Colors.CYAN}◆ {title}{Colors.RESET}\n")
+    
+    for i, option in enumerate(options):
+        marker = "●" if i == current_idx else "○"
+        if i == current_idx:
+            print(f"  {Colors.GREEN}{marker} {option}{Colors.RESET}")
         else:
-            print(f"  {marker} {choice}")
-    print(f"{Colors.DIM}  Enter 1-{len(choices)} (default: {default + 1}){Colors.RESET}")
-
+            print(f"  {marker} {option}")
+        if descriptions and i < len(descriptions):
+            print(f"     {Colors.DIM}{descriptions[i]}{Colors.RESET}")
+    
+    print()
     while True:
         try:
-            value = input(f"{Colors.YELLOW}  Select: {Colors.RESET}").strip()
-            if not value:
-                return default
-            idx = int(value) - 1
-            if 0 <= idx < len(choices):
+            choice = input(f"{Colors.YELLOW}Select (1-{len(options)}): {Colors.RESET}").strip()
+            if not choice:
+                return current_idx
+            idx = int(choice) - 1
+            if 0 <= idx < len(options):
                 return idx
-            print_error(f"Please enter a number between 1 and {len(choices)}")
-        except ValueError:
-            print_error("Please enter a number")
-        except (KeyboardInterrupt, EOFError):
-            print()
-            sys.exit(1)
+        except (ValueError, KeyboardInterrupt):
+            return current_idx
+
+# ============================================================================
+# Setup Functions
+# ============================================================================
+
+def print_welcome_banner():
+    """Print welcome banner"""
+    banner = f"""
+{Colors.GOLD}{Colors.BOLD}╔══════════════════════════════════════════════════════════════╗{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}                                                              {Colors.GOLD}{Colors.BOLD}║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}  ⚡️ {Colors.BOLD}Welcome to the Other Side, Builder{Colors.RESET}{Colors.GOLD}{' ' * 27}║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}                                                              {Colors.GOLD}{Colors.BOLD}║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}  {Colors.DIM}You found Blitz — where ideas actually become real.{Colors.RESET}{Colors.GOLD}        ║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}  {Colors.DIM}No more abandoned projects. No more decision fatigue.{Colors.RESET}{Colors.GOLD}       ║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}  {Colors.DIM}Just describe what you want, and watch it happen.{Colors.RESET}{Colors.GOLD}          ║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}║{Colors.RESET}                                                              {Colors.GOLD}{Colors.BOLD}║{Colors.RESET}
+{Colors.GOLD}{Colors.BOLD}╚══════════════════════════════════════════════════════════════╝{Colors.RESET}
+"""
+    print(banner)
 
 def check_claude_code() -> bool:
     """Check if Claude Code is installed"""
     claude_dir = Path.home() / ".claude"
     return claude_dir.exists()
 
-def print_welcome_banner():
-    """Print the welcome banner"""
-    banner = f"""
-{Colors.GOLD}╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║  ⚡️ {Colors.BOLD}Welcome to the Other Side, Builder{Colors.RESET}{Colors.GOLD}                    ║
-║                                                              ║
-║  {Colors.DIM}You found Blitz — where ideas actually become real.{Colors.RESET}{Colors.GOLD}        ║
-║  {Colors.DIM}No more abandoned projects. No more decision fatigue.{Colors.RESET}{Colors.GOLD}       ║
-║  {Colors.DIM}Just describe what you want, and watch it happen.{Colors.RESET}{Colors.GOLD}          ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝{Colors.RESET}
-"""
-    print(banner)
+def get_current_prefs() -> dict:
+    """Load current preferences if they exist"""
+    prefs_file = Path.home() / ".blitz" / "preferences.json"
+    if prefs_file.exists():
+        try:
+            return json.loads(prefs_file.read_text())
+        except:
+            pass
+    return {"tone": "sassy", "trust_mode": "notify", "onboarded": False}
 
-def select_tone() -> str:
-    """Let user select their preferred tone"""
-    print_header("Step 1: Pick Your Vibe")
-    print_info("This changes how Blitz talks to you during builds")
-    print()
-
+def select_tone(current: str = "sassy") -> str:
+    """Select tone with arrow keys"""
     tones = [
-        ("Sassy & Fun", "Professional but with personality. 'Your MVP is ALIVE! 🚀'"),
-        ("Chill & Casual", "Like a smart friend. 'Cool, structure's locked in.'"),
-        ("Professional", "Straight to business. 'Project structure complete.'"),
-        ("Minimal", "Just the facts. Updates only when you ask."),
+        ("sassy", "Sassy & Fun", "Professional with personality. 'Your MVP is ALIVE! 🚀'"),
+        ("chill", "Chill & Casual", "Like a smart friend. 'Cool, structure's locked in.'"),
+        ("pro", "Professional", "Straight to business. 'Project structure complete.'"),
+        ("minimal", "Minimal", "Just the facts. Updates only when you ask."),
     ]
-
-    for i, (name, desc) in enumerate(tones):
-        print(f"  {i+1}. {Colors.BOLD}{name}{Colors.RESET}")
-        print(f"     {Colors.DIM}{desc}{Colors.RESET}")
-        print()
-
-    choice = prompt_choice("How should Blitz talk to you?", [t[0] for t in tones], 0)
-    selected = tones[choice][0].lower().split()[0]  # 'sassy', 'chill', 'professional', 'minimal'
-
-    print_success(f"Tone set: {tones[choice][0]}")
+    
+    # Find current index
+    current_idx = 0
+    for i, (key, _, _) in enumerate(tones):
+        if key == current:
+            current_idx = i
+            break
+    
+    options = [t[1] for t in tones]
+    descriptions = [t[2] for t in tones]
+    
+    choice = run_curses_menu(
+        "Pick Your Vibe",
+        options,
+        descriptions,
+        current_idx,
+        show_current="current" if current else None
+    )
+    
+    selected = tones[choice][0]
+    print(f"\n  {Colors.GREEN}✓{Colors.RESET} Tone: {Colors.BOLD}{tones[choice][1]}{Colors.RESET}\n")
     return selected
 
-def select_trust_mode() -> str:
-    """Let user select their trust mode"""
-    print_header("Step 2: Choose Your Trust Mode")
-    print_info("How much should Blitz work independently?")
-    print()
-
+def select_trust_mode(current: str = "notify") -> str:
+    """Select trust mode with arrow keys"""
     modes = [
-        ("Notify Mode", "Blitz tells you what it's about to do, waits for OK", "Best for: Getting to know Blitz", 0),
-        ("Auto Mode", "Blitz executes directly, tells you after it's done", "Best for: Regular users", 3),
-        ("Ghost Mode", "Blitz works silently, daily summary only", "Best for: Full trust / power users", 10),
+        ("notify", "Notify Mode", "Blitz tells you what it's about to do, waits for OK"),
+        ("auto", "Auto Mode", "Blitz executes directly, tells you after it's done [3+ projects]"),
+        ("ghost", "Ghost Mode", "Blitz works silently, daily summary only [10+ projects]"),
     ]
-
-    for i, (name, desc, best_for, _) in enumerate(modes):
-        print(f"  {i+1}. {Colors.BOLD}{name}{Colors.RESET}")
-        print(f"     {desc}")
-        print(f"     {Colors.DIM}{best_for}{Colors.RESET}")
-        print()
-
-    choice = prompt_choice("How hands-on do you want to be?", [m[0] for m in modes], 0)
-    selected = modes[choice][0].lower().split()[0]  # 'notify', 'auto', 'ghost'
-
-    print_success(f"Trust mode: {modes[choice][0]}")
+    
+    # Find current index
+    current_idx = 0
+    for i, (key, _, _) in enumerate(modes):
+        if key == current:
+            current_idx = i
+            break
+    
+    options = [m[1] for m in modes]
+    descriptions = [m[2] for m in modes]
+    
+    choice = run_curses_menu(
+        "Choose Your Trust Mode",
+        options,
+        descriptions,
+        current_idx,
+        show_current="current" if current else None
+    )
+    
+    selected = modes[choice][0]
+    print(f"\n  {Colors.GREEN}✓{Colors.RESET} Trust Mode: {Colors.BOLD}{modes[choice][1]}{Colors.RESET}\n")
     return selected
 
 def save_preferences(tone: str, trust_mode: str):
-    """Save user preferences to ~/.blitz/ where trust_manager expects them"""
+    """Save user preferences"""
     blitz_home = Path.home() / ".blitz"
     prefs_file = blitz_home / "preferences.json"
-
+    
     prefs = {
         "trust_mode": trust_mode,
         "tone": tone,
         "onboarded": True,
         "version": "3.1",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "settings": {
             "auto_switch_threshold": True,
             "ghost_summary_time": "09:00",
             "progress_update_interval": 300
         }
     }
-
+    
     blitz_home.mkdir(parents=True, exist_ok=True)
     prefs_file.write_text(json.dumps(prefs, indent=2))
-    print_info(f"Preferences saved to: {prefs_file}")
+    
+    print(f"  {Colors.DIM}Config saved: {prefs_file}{Colors.RESET}")
 
-def print_next_steps():
-    """Print what to do next"""
-    print_header("You're In! 🎉")
-    print()
-    print(f"{Colors.BOLD}Next steps:{Colors.RESET}")
+def print_completion():
+    """Print completion message"""
+    print(f"\n{Colors.CYAN}{Colors.BOLD}◆ You're In! 🎉{Colors.RESET}\n")
+    print(f"  {Colors.BOLD}Next steps:{Colors.RESET}")
     print("  1. Start a new Claude Code session")
     print("  2. Say: 'Build me a trading bot' or whatever you want")
     print("  3. Answer 3-4 quick questions")
     print("  4. Watch your team work ⚡️")
     print()
-    print(f"{Colors.DIM}Change settings anytime: blitz config{Colors.RESET}")
+    print(f"  {Colors.DIM}Reconfigure anytime: blitz config{Colors.RESET}")
+    print()
+    print(f"{Colors.GOLD}{Colors.BOLD}  Welcome to the other side. Let's build something awesome.{Colors.RESET}")
     print()
 
 def run_setup():
     """Main setup flow"""
-    print_welcome_banner()
-
+    # Check if we're in a TTY
+    if sys.stdin.isatty():
+        print_welcome_banner()
+    
+    # Load current preferences (for reconfig)
+    current = get_current_prefs()
+    is_reconfig = current.get("onboarded", False)
+    
     # Check Claude Code
-    print_header("Checking Prerequisites")
-    if check_claude_code():
-        print_success("Claude Code detected ✓")
-    else:
-        print_error("Claude Code not found")
-        print_info("Install Claude Code first: https://claude.ai/code")
-        print()
-        response = prompt("Continue anyway? (y/n)", "n").lower()
-        if response not in ('y', 'yes'):
-            print_info("Setup cancelled. Install Claude Code and try again.")
-            return
-
+    if sys.stdin.isatty():
+        print(f"{Colors.CYAN}◆ Checking Prerequisites{Colors.RESET}")
+        if check_claude_code():
+            print(f"  {Colors.GREEN}✓{Colors.RESET} Claude Code detected\n")
+        else:
+            print(f"  {Colors.YELLOW}⚠{Colors.RESET} Claude Code not found")
+            print(f"  {Colors.DIM}Install: https://claude.ai/code{Colors.RESET}\n")
+    
     # Select preferences
-    tone = select_tone()
-    trust_mode = select_trust_mode()
-
-    # Save preferences
-    print_header("Saving Your Preferences")
+    if is_reconfig:
+        print(f"{Colors.CYAN}◆ Reconfiguring Blitz{Colors.RESET}\n")
+    
+    tone = select_tone(current.get("tone", "sassy"))
+    trust_mode = select_trust_mode(current.get("trust_mode", "notify"))
+    
+    # Save
+    if sys.stdin.isatty():
+        print(f"{Colors.CYAN}◆ Saving Configuration{Colors.RESET}")
     save_preferences(tone, trust_mode)
-    print_success("All set!")
-
-    # Next steps
-    print_next_steps()
-
-    print(f"{Colors.GOLD}{Colors.BOLD}Welcome to the other side. Let's build something awesome.{Colors.RESET}")
-    print()
+    print(f"  {Colors.GREEN}✓{Colors.RESET} Saved!\n")
+    
+    # Completion
+    if sys.stdin.isatty():
+        print_completion()
 
 if __name__ == "__main__":
     try:
         run_setup()
     except KeyboardInterrupt:
-        print()
-        print_info("Setup cancelled. Run again anytime with: python setup.py")
+        print(f"\n\n{Colors.DIM}Setup cancelled. Run 'blitz config' to try again.{Colors.RESET}")
         sys.exit(0)

@@ -36,6 +36,17 @@ cp -r "$BLITZ_DIR" "$BLITZ_SKILL_DIR"
 # Create symlink for easy access
 ln -sf "$BLITZ_SKILL_DIR" "${SKILLS_DIR}/blitz" 2>/dev/null || true
 
+# Install blitz CLI command to /usr/local/bin or ~/.local/bin
+if [ -w "/usr/local/bin" ]; then
+    ln -sf "$BLITZ_SKILL_DIR/blitz" /usr/local/bin/blitz 2>/dev/null || true
+    echo "✓ Installed: blitz command → /usr/local/bin/blitz"
+else
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$BLITZ_SKILL_DIR/blitz" "$HOME/.local/bin/blitz" 2>/dev/null || true
+    echo "✓ Installed: blitz command → ~/.local/bin/blitz"
+    echo "  Add ~/.local/bin to your PATH if not already there"
+fi
+
 # Install CLAUDE.md hook
 echo "🔗 Installing CLAUDE.md hook..."
 

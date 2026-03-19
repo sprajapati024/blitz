@@ -1,0 +1,9 @@
+# Buildmate v3 Requirements
+# Minimal dependencies - relies on Claude Code for heavy lifting
+
+# Core - using only stdlib for now
+# pathlib, json, datetime included in Python 3.7+
+
+# Future additions (if needed):
+# requests>=2.28.0    # For web research
+# pyyaml>=6.0        # For YAML config support

@@ -7,5 +7,6 @@ from .intent_detector import IntentDetector
 from .state_manager import StateManager
 from .doc_updater import DocUpdater
 from .agent_spawner import AgentSpawner
+from .git_manager import GitManager
 
-__all__ = ['IntentDetector', 'StateManager', 'DocUpdater', 'AgentSpawner']
+__all__ = ["IntentDetector", "StateManager", "DocUpdater", "AgentSpawner", "GitManager"]

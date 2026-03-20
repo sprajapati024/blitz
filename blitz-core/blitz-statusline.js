@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// gsd-hook-version: {{GSD_VERSION}}
-// Claude Code Statusline - GSD Edition
+// blitz-hook-version: {{GSD_VERSION}}
+// Claude Code Statusline - Blitz Edition
 // Shows: model | current task | directory | context usage
 
 const fs = require('fs');
@@ -91,17 +91,17 @@ process.stdin.on('end', () => {
       }
     }
 
-    // GSD update available?
+    // Blitz update available?
     let gsdUpdate = '';
-    const cacheFile = path.join(claudeDir, 'cache', 'gsd-update-check.json');
+    const cacheFile = path.join(claudeDir, 'cache', 'blitz-update-check.json');
     if (fs.existsSync(cacheFile)) {
       try {
         const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
         if (cache.update_available) {
-          gsdUpdate = '\x1b[33m⬆ /gsd:update\x1b[0m │ ';
+          gsdUpdate = '\x1b[33m⬆ /blitz:update\x1b[0m │ ';
         }
         if (cache.stale_hooks && cache.stale_hooks.length > 0) {
-          gsdUpdate += '\x1b[31m⚠ stale hooks — run /gsd:update\x1b[0m │ ';
+          gsdUpdate += '\x1b[31m⚠ stale hooks — run /blitz:update\x1b[0m │ ';
         }
       } catch (e) {}
     }

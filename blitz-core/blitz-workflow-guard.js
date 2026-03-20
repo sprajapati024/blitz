@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// gsd-hook-version: {{GSD_VERSION}}
-// GSD Workflow Guard — PreToolUse hook
-// Detects when Claude attempts file edits outside a GSD workflow context
-// (no active /gsd: command or Task subagent) and injects an advisory warning.
+// blitz-hook-version: {{GSD_VERSION}}
+// Blitz Workflow Guard — PreToolUse hook
+// Detects when Claude attempts file edits outside a Blitz workflow context
+// (no active /blitz: command or Task subagent) and injects an advisory warning.
 //
 // This is a SOFT guard — it advises, not blocks. The edit still proceeds.
-// The warning nudges Claude to use /gsd:quick or /gsd:fast instead of
+// The warning nudges Claude to use /blitz:quick or /blitz:fast instead of
 // making direct edits that bypass state tracking.
 //
 // Enable via config: hooks.workflow_guard: true (default: false)
@@ -29,7 +29,7 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    // Check if we're inside a GSD workflow (Task subagent or /gsd: command)
+    // Check if we're inside a Blitz workflow (Task subagent or /blitz: command)
     // Subagents have a session_id that differs from the parent
     // and typically have a description field set by the orchestrator
     if (data.tool_input?.is_subagent || data.session_type === 'task') {
@@ -39,12 +39,12 @@ process.stdin.on('end', () => {
     // Check the file being edited
     const filePath = data.tool_input?.file_path || data.tool_input?.path || '';
 
-    // Allow edits to .planning/ files (GSD state management)
+    // Allow edits to .planning/ files (Blitz state management)
     if (filePath.includes('.planning/') || filePath.includes('.planning\\')) {
       process.exit(0);
     }
 
-    // Allow edits to common config/docs files that don't need GSD tracking
+    // Allow edits to common config/docs files that don't need Blitz tracking
     const allowedPatterns = [
       /\.gitignore$/,
       /\.env/,
@@ -70,17 +70,17 @@ process.stdin.on('end', () => {
         process.exit(0);
       }
     } else {
-      process.exit(0); // No GSD project — don't guard
+      process.exit(0); // No Blitz project — don't guard
     }
 
-    // If we get here: GSD project, guard enabled, file edit outside .planning/,
+    // If we get here: Blitz project, guard enabled, file edit outside .planning/,
     // not in a subagent context. Inject advisory warning.
     const output = {
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
-        additionalContext: `⚠️ WORKFLOW ADVISORY: You're editing ${path.basename(filePath)} directly without a GSD command. ` +
+        additionalContext: `⚠️ WORKFLOW ADVISORY: You're editing ${path.basename(filePath)} directly without a Blitz command. ` +
           'This edit will not be tracked in STATE.md or produce a SUMMARY.md. ' +
-          'Consider using /gsd:fast for trivial fixes or /gsd:quick for larger changes ' +
+          'Consider using /blitz:fast for trivial fixes or /blitz:quick for larger changes ' +
           'to maintain project state tracking. ' +
           'If this is intentional (e.g., user explicitly asked for a direct edit), proceed normally.'
       }

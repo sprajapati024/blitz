@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: {{GSD_VERSION}}
+// blitz-hook-version: {{GSD_VERSION}}
 // Context Monitor - PostToolUse/AfterTool hook (Gemini uses AfterTool)
 // Reads context metrics from the statusline bridge file and injects
 // warnings when context usage is high. This makes the AGENT aware of
@@ -116,7 +116,7 @@ process.stdin.on('end', () => {
     warnData.lastLevel = currentLevel;
     fs.writeFileSync(warnPath, JSON.stringify(warnData));
 
-    // Detect if GSD is active (has .planning/STATE.md in working directory)
+    // Detect if Blitz is active (has .planning/STATE.md in working directory)
     const isGsdActive = fs.existsSync(path.join(cwd, '.planning', 'STATE.md'));
 
     // Build advisory warning message (never use imperative commands that
@@ -126,8 +126,8 @@ process.stdin.on('end', () => {
       message = isGsdActive
         ? `CONTEXT CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
           'Context is nearly exhausted. Do NOT start new complex work or write handoff files — ' +
-          'GSD state is already tracked in STATE.md. Inform the user so they can run ' +
-          '/gsd:pause-work at the next natural stopping point.'
+          'Blitz state is already tracked in STATE.md. Inform the user so they can run ' +
+          '/blitz:pause-work at the next natural stopping point.'
         : `CONTEXT CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
           'Context is nearly exhausted. Inform the user that context is low and ask how they ' +
           'want to proceed. Do NOT autonomously save state or write handoff files unless the user asks.';

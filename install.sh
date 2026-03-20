@@ -98,7 +98,16 @@ Key rules:
 - Background execution - casual updates only
 - Interruptible anytime
 
-Import from: ${SKILLS_DIR}/blitz-v3/core
+**Important - Before importing Blitz, add to Python path:**
+```python
+import sys
+from pathlib import Path
+blitz_path = Path.home() / ".claude" / "skills" / "blitz-v3"
+if str(blitz_path) not in sys.path:
+    sys.path.insert(0, str(blitz_path))
+```
+
+Import from: ${SKILLS_DIR}/blitz-v3/blitz_v3/core
 EOF
 
 echo ""
@@ -106,7 +115,7 @@ echo "✅ Blitz v3 installed!"
 echo ""
 
 # Run interactive setup
-python3 "${BLITZ_SKILL_DIR}/setup.py"
+python3 "${BLITZ_SKILL_DIR}/onboarding.py"
 
 echo ""
 echo "Documentation: ${BLITZ_SKILL_DIR}/README.md"

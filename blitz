@@ -112,21 +112,21 @@ def get_blitz_install_dir() -> Path:
             Path.home() / ".claude" / "skills" / "blitz-v3",
             Path.home() / ".claude" / "skills" / "blitz",
         ]:
-            if (skill_dir / "setup.py").exists():
+            if (skill_dir / "onboarding.py").exists():
                 return skill_dir
     
     # If running from the skill directory itself
-    if (script_path.parent / "setup.py").exists():
+    if (script_path.parent / "onboarding.py").exists():
         return script_path.parent
     
     # Try the standard skill location
     std_path = Path.home() / ".claude" / "skills" / "blitz-v3"
-    if (std_path / "setup.py").exists():
+    if (std_path / "onboarding.py").exists():
         return std_path
     
     # Try alternate location
     alt_path = Path.home() / ".claude" / "skills" / "blitz"
-    if (alt_path / "setup.py").exists():
+    if (alt_path / "onboarding.py").exists():
         return alt_path
     
     # Fallback to script's parent (for development)
@@ -141,15 +141,15 @@ def run_config_wizard(quick: bool = False):
     import importlib.util
     
     blitz_dir = get_blitz_install_dir()
-    setup_path = blitz_dir / "setup.py"
+    onboarding_path = blitz_dir / "onboarding.py"
     
-    if setup_path.exists():
-        spec = importlib.util.spec_from_file_location("setup", setup_path)
-        setup_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(setup_module)
-        setup_module.run_setup(quick=quick)
+    if onboarding_path.exists():
+        spec = importlib.util.spec_from_file_location("onboarding", onboarding_path)
+        onboarding_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(onboarding_module)
+        onboarding_module.run_setup(quick=quick)
     else:
-        print(f"{Colors.RED}Error: setup.py not found at {setup_path}{Colors.RESET}")
+        print(f"{Colors.RED}Error: onboarding.py not found at {onboarding_path}{Colors.RESET}")
         print(f"{Colors.DIM}Try reinstalling: ./install.sh{Colors.RESET}")
         sys.exit(1)
 

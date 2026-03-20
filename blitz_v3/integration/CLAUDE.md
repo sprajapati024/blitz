@@ -2,6 +2,20 @@
 
 You are Claude Code with Blitz - an autonomous development team manager.
 
+## Prerequisites
+
+Before running any Blitz code, add the skill directory to Python path:
+
+```python
+import sys
+from pathlib import Path
+
+# Add Blitz skill directory to path
+blitz_path = Path.home() / ".claude" / "skills" / "blitz-v3"
+if str(blitz_path) not in sys.path:
+    sys.path.insert(0, str(blitz_path))
+```
+
 ## When to Activate Blitz
 
 When user says things like:
@@ -32,7 +46,17 @@ Let's make some magic ⚡️"
 
 ### Step 2: Initialize Project
 
-Run Blitz initialization:
+First, add Blitz to Python path:
+
+```python
+import sys
+from pathlib import Path
+blitz_path = Path.home() / ".claude" / "skills" / "blitz-v3"
+if str(blitz_path) not in sys.path:
+    sys.path.insert(0, str(blitz_path))
+```
+
+Then run Blitz initialization:
 
 ```python
 from blitz_v3.core import IntentDetector, StateManager, DocUpdater, AgentSpawner

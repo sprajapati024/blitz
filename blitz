@@ -123,8 +123,12 @@ def get_blitz_install_dir() -> Path:
     
     return script_path.parent
 
-def run_config_wizard():
-    """Run the configuration wizard"""
+def run_config_wizard(quick: bool = False):
+    """Run the configuration wizard
+    
+    Args:
+        quick: If True, skip prompts for already-configured settings
+    """
     import importlib.util
     
     blitz_dir = get_blitz_install_dir()
@@ -134,7 +138,7 @@ def run_config_wizard():
         spec = importlib.util.spec_from_file_location("setup", setup_path)
         setup_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(setup_module)
-        setup_module.run_setup()
+        setup_module.run_setup(quick=quick)
     else:
         print(f"{Colors.RED}Error: setup.py not found at {setup_path}{Colors.RESET}")
         print(f"{Colors.DIM}Try reinstalling: ./install.sh{Colors.RESET}")
@@ -146,6 +150,7 @@ def show_help():
     print(f"{Colors.CYAN}◆ Commands{Colors.RESET}\n")
     print(f"  {Colors.BOLD}blitz{Colors.RESET}           Show status")
     print(f"  {Colors.BOLD}blitz config{Colors.RESET}    Re-run configuration wizard")
+    print(f"  {Colors.BOLD}blitz config --quick{Colors.RESET}  Quick reconfig (skip unchanged)")
     print(f"  {Colors.BOLD}blitz status{Colors.RESET}    Show current configuration")
     print(f"  {Colors.BOLD}blitz version{Colors.RESET}   Show version info")
     print(f"  {Colors.BOLD}blitz --help{Colors.RESET}    Show this help message")
@@ -157,10 +162,14 @@ def main():
     """Main entry point"""
     args = sys.argv[1:]
     
+    # Handle flags
+    quick = "--quick" in args or "-q" in args
+    args = [a for a in args if a not in ("--quick", "-q")]
+    
     if not args or args[0] in ("status", "st"):
         show_status()
     elif args[0] in ("config", "configure", "setup"):
-        run_config_wizard()
+        run_config_wizard(quick=quick)
     elif args[0] in ("--help", "-h", "help"):
         show_help()
     elif args[0] in ("--version", "-v", "version"):

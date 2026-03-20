@@ -4174,16 +4174,16 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   if (runtime === 'antigravity') program = 'Antigravity';
   if (runtime === 'cursor') program = 'Cursor';
 
-  let command = '/blitz:new-project';
-  if (runtime === 'opencode') command = '/blitz-new-project';
-  if (runtime === 'codex') command = '$blitz-new-project';
-  if (runtime === 'copilot') command = '/blitz-new-project';
-  if (runtime === 'antigravity') command = '/blitz-new-project';
-  if (runtime === 'cursor') command = 'blitz-new-project (mention the skill name)';
+  let command = '/blitz:new';
+  if (runtime === 'opencode') command = '/blitz-new';
+  if (runtime === 'codex') command = '$blitz-new';
+  if (runtime === 'copilot') command = '/blitz-new';
+  if (runtime === 'antigravity') command = '/blitz-new';
+  if (runtime === 'cursor') command = 'blitz-new (mention the skill name)';
   console.log(`
-  ${green}Done!${reset} Open a blank directory in ${program} and run ${cyan}${command}${reset}.
+  ${green}Done!${reset} Blitz installed for ${program}.
 
-  ${cyan}Join the community:${reset} https://discord.gg/gsd
+  Run ${cyan}${command}${reset} to get started.
 `);
 }
 

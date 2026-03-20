@@ -19,10 +19,10 @@
 git clone https://github.com/sprajapati024/blitz.git
 cd blitz
 
-# Run the installer
-node bin/install.js
+# Run the simple installer (Claude Code only)
+node bin/install-simple.js
 
-# Or run directly with node
+# Or run onboarding to configure
 node bin/onboarding.js
 ```
 

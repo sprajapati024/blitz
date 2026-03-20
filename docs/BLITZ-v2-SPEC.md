@@ -1,6 +1,6 @@
 # BLITZ v2 - Specification
 
-**Forked from GSD (Get Shit Done) by TÂCHES**  
+**Forked from Blitz (Blitz) by TÂCHES**  
 **License: MIT**
 
 ---
@@ -9,7 +9,7 @@
 
 Blitz v2 is GSD's infrastructure with Blitz's soul. Same proven agent orchestration, wave execution, and state management - wrapped in Blitz's personality and conversational UX.
 
-**GSD**: "Get Shit Done" - aggressive, functional, no-nonsense  
+**GSD**: "Blitz" - aggressive, functional, no-nonsense  
 **Blitz**: Sassy, chill, competent - like a senior dev who ships while you watch
 
 ---
@@ -17,7 +17,7 @@ Blitz v2 is GSD's infrastructure with Blitz's soul. Same proven agent orchestrat
 ## Core Philosophy
 
 ```
-GSD = You drive, GSD executes
+Blitz = You drive, Blitz executes
 Blitz = You talk, Blitz builds
 
 The conversation never stops.
@@ -388,18 +388,18 @@ blitz-cc/
 
 ### Key Replacements from GSD
 
-| GSD | Blitz |
+| Blitz | Blitz |
 |-----|-------|
 | `commands/gsd/` | `commands/blitz/` |
-| `get-shit-done/` | `blitz-core/` |
-| `gsd-planner` | `blitz-planner` |
-| `gsd-executor` | `blitz-executor` |
-| `gsd-verifier` | `blitz-verifier` |
-| `gsd-tools.cjs` | `blitz-tools.cjs` |
-| `~/.claude/get-shit-done/` | `~/.claude/blitz/` |
-| `/gsd:` | `/blitz:` |
+| `blitz-core/` | `blitz-core/` |
+| `blitz-planner` | `blitz-planner` |
+| `blitz-executor` | `blitz-executor` |
+| `blitz-verifier` | `blitz-verifier` |
+| `blitz-tools.cjs` | `blitz-tools.cjs` |
+| `~/.claude/blitz-core/` | `~/.claude/blitz/` |
+| `/blitz:` | `/blitz:` |
 
-### What to Keep from GSD (Proven)
+### What to Keep from Blitz (Proven)
 
 - Wave-based parallel execution
 - Agent orchestration pattern (orchestrator → specialized agents)
@@ -536,7 +536,7 @@ Base unit: 4px
 
 ---
 
-## GSD Credit
+## Blitz Credit
 
-> Blitz is a fork of [GSD (Get Shit Done)](https://github.com/gsd-build/get-shit-done) by [TÂCHES](https://github.com/glittercowboy).
+> Blitz is a fork of [Blitz (Blitz)](https://github.com/blitz-build/blitz-core) by [TÂCHES](https://github.com/glittercowboy).
 > We keeping GSD's proven architecture and adding Blitz's personality and UX.

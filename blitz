@@ -101,26 +101,35 @@ def show_status():
     print()
 
 def get_blitz_install_dir() -> Path:
-    """Find the Blitz installation directory"""
-    # First check if we're running from the symlink
-    script_path = Path(__file__)
-    if script_path.is_symlink():
-        script_path = script_path.resolve()
+    """Find the Blitz installation directory - works when installed globally"""
+    # First, try to find it based on where this script is running from
+    script_path = Path(__file__).resolve()
     
-    # Try the script's directory first
+    # If running from /usr/local/bin or ~/.local/bin, the actual files are in skills
+    if script_path.parent.name == "bin" or script_path.parent.name == ".local":
+        # Check common skill locations
+        for skill_dir in [
+            Path.home() / ".claude" / "skills" / "blitz-v3",
+            Path.home() / ".claude" / "skills" / "blitz",
+        ]:
+            if (skill_dir / "setup.py").exists():
+                return skill_dir
+    
+    # If running from the skill directory itself
     if (script_path.parent / "setup.py").exists():
         return script_path.parent
     
-    # Fallback to standard install location
+    # Try the standard skill location
     std_path = Path.home() / ".claude" / "skills" / "blitz-v3"
     if (std_path / "setup.py").exists():
         return std_path
     
-    # Last resort - try blitz symlink
+    # Try alternate location
     alt_path = Path.home() / ".claude" / "skills" / "blitz"
     if (alt_path / "setup.py").exists():
         return alt_path
     
+    # Fallback to script's parent (for development)
     return script_path.parent
 
 def run_config_wizard(quick: bool = False):

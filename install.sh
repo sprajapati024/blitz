@@ -37,14 +37,35 @@ cp -r "$BLITZ_DIR" "$BLITZ_SKILL_DIR"
 ln -sf "$BLITZ_SKILL_DIR" "${SKILLS_DIR}/blitz" 2>/dev/null || true
 
 # Install blitz CLI command to /usr/local/bin or ~/.local/bin
+echo ""
+echo "📍 Creating global 'blitz' command..."
+
+# Check which PATH location to use
 if [ -w "/usr/local/bin" ]; then
-    ln -sf "$BLITZ_SKILL_DIR/blitz" /usr/local/bin/blitz 2>/dev/null || true
-    echo "✓ Installed: blitz command → /usr/local/bin/blitz"
+    BIN_PATH="/usr/local/bin"
 else
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$BLITZ_SKILL_DIR/blitz" "$HOME/.local/bin/blitz" 2>/dev/null || true
-    echo "✓ Installed: blitz command → ~/.local/bin/blitz"
-    echo "  Add ~/.local/bin to your PATH if not already there"
+    BIN_PATH="$HOME/.local/bin"
+    mkdir -p "$BIN_PATH"
+fi
+
+# Create the symlink
+ln -sf "$BLITZ_SKILL_DIR/blitz" "$BIN_PATH/blitz" 2>/dev/null || true
+echo "✓ Installed: blitz command → $BIN_PATH/blitz"
+
+# Verify PATH has the bin directory
+if [ "$BIN_PATH" = "$HOME/.local/bin" ]; then
+    if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+        echo ""
+        echo "⚠️  Add this to your shell profile (~/.zshrc or ~/.bashrc):"
+        echo "    export PATH=\"$HOME/.local/bin:\$PATH\""
+    fi
+fi
+
+# Verify it works
+if command -v blitz &> /dev/null; then
+    echo "✓ 'blitz' command is available globally!"
+else
+    echo "⚠️  Could not verify 'blitz' command. Restart your terminal."
 fi
 
 # Install CLAUDE.md hook

@@ -140,35 +140,59 @@ def curses_menu(stdscr, title: str, options: list, descriptions: list = None,
 def run_curses_menu(title: str, options: list, descriptions: list = None, 
                     current_idx: int = 0, show_current: str = None) -> int:
     """Wrapper to run curses menu with fallback"""
+    # Check if we're in a proper interactive terminal
+    if not sys.stdout.isatty() or not sys.stdin.isatty():
+        return fallback_menu(title, options, descriptions, current_idx)
+    
     try:
+        # Try curses
         return curses.wrapper(curses_menu, title, options, descriptions, current_idx, show_current)
-    except:
-        # Fallback to simple input if curses fails
+    except Exception as e:
+        # If curses fails, use fallback but print why
         return fallback_menu(title, options, descriptions, current_idx)
 
 def fallback_menu(title: str, options: list, descriptions: list = None, current_idx: int = 0) -> int:
-    """Fallback menu for non-TTY environments"""
-    print(f"\n{Colors.CYAN}◆ {title}{Colors.RESET}\n")
+    """Fallback menu that looks good even without curses"""
+    print(f"\n{Colors.CYAN}{Colors.BOLD}◆ {title}{Colors.RESET}\n")
     
     for i, option in enumerate(options):
-        marker = "●" if i == current_idx else "○"
         if i == current_idx:
-            print(f"  {Colors.GREEN}{marker} {option}{Colors.RESET}")
+            # Selected item
+            marker = f"{Colors.GREEN}▶{Colors.RESET}"
+            option_text = f"{Colors.BOLD}{Colors.GREEN}{option}{Colors.RESET}"
+            current_tag = f" {Colors.MAGENTA}[current]{Colors.RESET}" if current_idx == i else ""
+            print(f"  {marker} {option_text}{current_tag}")
         else:
-            print(f"  {marker} {option}")
+            # Unselected item
+            marker = "○"
+            option_text = option
+            current_tag = f" {Colors.MAGENTA}[current]{Colors.RESET}" if current_idx == i else ""
+            print(f"  {marker} {option_text}{current_tag}")
+        
+        # Description
         if descriptions and i < len(descriptions):
             print(f"     {Colors.DIM}{descriptions[i]}{Colors.RESET}")
     
+    print(f"\n  {Colors.DIM}Use ↑↓ arrow keys or type number (1-{len(options)}){Colors.RESET}")
     print()
+    
     while True:
         try:
-            choice = input(f"{Colors.YELLOW}Select (1-{len(options)}): {Colors.RESET}").strip()
+            choice = input(f"{Colors.YELLOW}  Select: {Colors.RESET}").strip()
             if not choice:
                 return current_idx
             idx = int(choice) - 1
             if 0 <= idx < len(options):
                 return idx
-        except (ValueError, KeyboardInterrupt):
+            print(f"  {Colors.RED}Please enter 1-{len(options)}{Colors.RESET}")
+        except ValueError:
+            # Check for arrow key escape sequences (if terminal sends them as input)
+            if choice == '\x1b[A':  # Up arrow
+                return (current_idx - 1) % len(options)
+            elif choice == '\x1b[B':  # Down arrow
+                return (current_idx + 1) % len(options)
+            print(f"  {Colors.RED}Please enter a number{Colors.RESET}")
+        except KeyboardInterrupt:
             return current_idx
 
 # ============================================================================
@@ -233,7 +257,7 @@ def select_tone(current: str = "sassy") -> str:
     )
     
     selected = tones[choice][0]
-    print(f"\n  {Colors.GREEN}✓{Colors.RESET} Tone: {Colors.BOLD}{tones[choice][1]}{Colors.RESET}\n")
+    print(f"\n  {Colors.GREEN}✓{Colors.RESET} Tone: {Colors.BOLD}{tones[choice][1]}{Colors.RESET}")
     return selected
 
 def select_trust_mode(current: str = "notify") -> str:
@@ -263,7 +287,7 @@ def select_trust_mode(current: str = "notify") -> str:
     )
     
     selected = modes[choice][0]
-    print(f"\n  {Colors.GREEN}✓{Colors.RESET} Trust Mode: {Colors.BOLD}{modes[choice][1]}{Colors.RESET}\n")
+    print(f"\n  {Colors.GREEN}✓{Colors.RESET} Trust Mode: {Colors.BOLD}{modes[choice][1]}{Colors.RESET}")
     return selected
 
 def save_preferences(tone: str, trust_mode: str):
@@ -305,39 +329,35 @@ def print_completion():
 
 def run_setup():
     """Main setup flow"""
-    # Check if we're in a TTY
-    if sys.stdin.isatty():
-        print_welcome_banner()
+    # Always show the banner
+    print_welcome_banner()
     
     # Load current preferences (for reconfig)
     current = get_current_prefs()
     is_reconfig = current.get("onboarded", False)
     
     # Check Claude Code
-    if sys.stdin.isatty():
-        print(f"{Colors.CYAN}◆ Checking Prerequisites{Colors.RESET}")
-        if check_claude_code():
-            print(f"  {Colors.GREEN}✓{Colors.RESET} Claude Code detected\n")
-        else:
-            print(f"  {Colors.YELLOW}⚠{Colors.RESET} Claude Code not found")
-            print(f"  {Colors.DIM}Install: https://claude.ai/code{Colors.RESET}\n")
+    print(f"{Colors.CYAN}{Colors.BOLD}◆ Checking Prerequisites{Colors.RESET}")
+    if check_claude_code():
+        print(f"  {Colors.GREEN}✓{Colors.RESET} Claude Code detected\n")
+    else:
+        print(f"  {Colors.YELLOW}⚠{Colors.RESET} Claude Code not found")
+        print(f"  {Colors.DIM}Install: https://claude.ai/code{Colors.RESET}\n")
     
     # Select preferences
     if is_reconfig:
-        print(f"{Colors.CYAN}◆ Reconfiguring Blitz{Colors.RESET}\n")
+        print(f"{Colors.CYAN}{Colors.BOLD}◆ Reconfiguring Blitz{Colors.RESET}\n")
     
     tone = select_tone(current.get("tone", "sassy"))
     trust_mode = select_trust_mode(current.get("trust_mode", "notify"))
     
     # Save
-    if sys.stdin.isatty():
-        print(f"{Colors.CYAN}◆ Saving Configuration{Colors.RESET}")
+    print(f"\n{Colors.CYAN}{Colors.BOLD}◆ Saving Configuration{Colors.RESET}")
     save_preferences(tone, trust_mode)
     print(f"  {Colors.GREEN}✓{Colors.RESET} Saved!\n")
     
     # Completion
-    if sys.stdin.isatty():
-        print_completion()
+    print_completion()
 
 if __name__ == "__main__":
     try:

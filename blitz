@@ -100,11 +100,35 @@ def show_status():
         print(f"  {Colors.GREEN}✓ All modes unlocked!{Colors.RESET}")
     print()
 
+def get_blitz_install_dir() -> Path:
+    """Find the Blitz installation directory"""
+    # First check if we're running from the symlink
+    script_path = Path(__file__)
+    if script_path.is_symlink():
+        script_path = script_path.resolve()
+    
+    # Try the script's directory first
+    if (script_path.parent / "setup.py").exists():
+        return script_path.parent
+    
+    # Fallback to standard install location
+    std_path = Path.home() / ".claude" / "skills" / "blitz-v3"
+    if (std_path / "setup.py").exists():
+        return std_path
+    
+    # Last resort - try blitz symlink
+    alt_path = Path.home() / ".claude" / "skills" / "blitz"
+    if (alt_path / "setup.py").exists():
+        return alt_path
+    
+    return script_path.parent
+
 def run_config_wizard():
     """Run the configuration wizard"""
-    # Import the setup module
     import importlib.util
-    setup_path = Path(__file__).parent / "setup.py"
+    
+    blitz_dir = get_blitz_install_dir()
+    setup_path = blitz_dir / "setup.py"
     
     if setup_path.exists():
         spec = importlib.util.spec_from_file_location("setup", setup_path)
@@ -112,7 +136,8 @@ def run_config_wizard():
         spec.loader.exec_module(setup_module)
         setup_module.run_setup()
     else:
-        print(f"{Colors.RED}Error: setup.py not found{Colors.RESET}")
+        print(f"{Colors.RED}Error: setup.py not found at {setup_path}{Colors.RESET}")
+        print(f"{Colors.DIM}Try reinstalling: ./install.sh{Colors.RESET}")
         sys.exit(1)
 
 def show_help():

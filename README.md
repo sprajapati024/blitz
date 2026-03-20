@@ -10,14 +10,20 @@
 
 [**English**](README.md)
 
-[![npm version](https://img.shields.io/npm/v/blitz-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/blitz-cc)
-[![npm downloads](https://img.shields.io/npm/dm/blitz-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/blitz-cc)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
 ```bash
-npx blitz-cc@latest
+# Clone from GitHub
+git clone https://github.com/sprajapati024/blitz.git
+cd blitz
+
+# Run the installer
+node bin/install.js
+
+# Or run directly with node
+node bin/onboarding.js
 ```
 
 **Works on Mac, Windows, and Linux.**
@@ -67,7 +73,9 @@ Developers who want to describe what they want and have it built — without pre
 ## Getting Started
 
 ```bash
-npx blitz-cc@latest
+git clone https://github.com/sprajapati024/blitz.git
+cd blitz
+node bin/install.js
 ```
 
 The installer walks you through:
@@ -80,10 +88,12 @@ Verify with:
 
 ### Staying Updated
 
-Blitz evolves. Update periodically:
+Blitz evolves. Pull and reinstall:
 
 ```bash
-npx blitz-cc@latest
+cd blitz
+git pull origin macbook
+node bin/install.js
 ```
 
 ---

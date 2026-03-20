@@ -101,42 +101,55 @@ def show_status():
     print()
 
 def get_blitz_install_dir() -> Path:
-    """Find the Blitz installation directory"""
-    # First check if we're running from the symlink
-    script_path = Path(__file__)
-    if script_path.is_symlink():
-        script_path = script_path.resolve()
+    """Find the Blitz installation directory - works when installed globally"""
+    # First, try to find it based on where this script is running from
+    script_path = Path(__file__).resolve()
     
-    # Try the script's directory first
-    if (script_path.parent / "setup.py").exists():
+    # If running from /usr/local/bin or ~/.local/bin, the actual files are in skills
+    if script_path.parent.name == "bin" or script_path.parent.name == ".local":
+        # Check common skill locations
+        for skill_dir in [
+            Path.home() / ".claude" / "skills" / "blitz-v3",
+            Path.home() / ".claude" / "skills" / "blitz",
+        ]:
+            if (skill_dir / "onboarding.py").exists():
+                return skill_dir
+    
+    # If running from the skill directory itself
+    if (script_path.parent / "onboarding.py").exists():
         return script_path.parent
     
-    # Fallback to standard install location
+    # Try the standard skill location
     std_path = Path.home() / ".claude" / "skills" / "blitz-v3"
-    if (std_path / "setup.py").exists():
+    if (std_path / "onboarding.py").exists():
         return std_path
     
-    # Last resort - try blitz symlink
+    # Try alternate location
     alt_path = Path.home() / ".claude" / "skills" / "blitz"
-    if (alt_path / "setup.py").exists():
+    if (alt_path / "onboarding.py").exists():
         return alt_path
     
+    # Fallback to script's parent (for development)
     return script_path.parent
 
-def run_config_wizard():
-    """Run the configuration wizard"""
+def run_config_wizard(quick: bool = False):
+    """Run the configuration wizard
+    
+    Args:
+        quick: If True, skip prompts for already-configured settings
+    """
     import importlib.util
     
     blitz_dir = get_blitz_install_dir()
-    setup_path = blitz_dir / "setup.py"
+    onboarding_path = blitz_dir / "onboarding.py"
     
-    if setup_path.exists():
-        spec = importlib.util.spec_from_file_location("setup", setup_path)
-        setup_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(setup_module)
-        setup_module.run_setup()
+    if onboarding_path.exists():
+        spec = importlib.util.spec_from_file_location("onboarding", onboarding_path)
+        onboarding_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(onboarding_module)
+        onboarding_module.run_setup(quick=quick)
     else:
-        print(f"{Colors.RED}Error: setup.py not found at {setup_path}{Colors.RESET}")
+        print(f"{Colors.RED}Error: onboarding.py not found at {onboarding_path}{Colors.RESET}")
         print(f"{Colors.DIM}Try reinstalling: ./install.sh{Colors.RESET}")
         sys.exit(1)
 
@@ -146,6 +159,7 @@ def show_help():
     print(f"{Colors.CYAN}◆ Commands{Colors.RESET}\n")
     print(f"  {Colors.BOLD}blitz{Colors.RESET}           Show status")
     print(f"  {Colors.BOLD}blitz config{Colors.RESET}    Re-run configuration wizard")
+    print(f"  {Colors.BOLD}blitz config --quick{Colors.RESET}  Quick reconfig (skip unchanged)")
     print(f"  {Colors.BOLD}blitz status{Colors.RESET}    Show current configuration")
     print(f"  {Colors.BOLD}blitz version{Colors.RESET}   Show version info")
     print(f"  {Colors.BOLD}blitz --help{Colors.RESET}    Show this help message")
@@ -157,10 +171,14 @@ def main():
     """Main entry point"""
     args = sys.argv[1:]
     
+    # Handle flags
+    quick = "--quick" in args or "-q" in args
+    args = [a for a in args if a not in ("--quick", "-q")]
+    
     if not args or args[0] in ("status", "st"):
         show_status()
     elif args[0] in ("config", "configure", "setup"):
-        run_config_wizard()
+        run_config_wizard(quick=quick)
     elif args[0] in ("--help", "-h", "help"):
         show_help()
     elif args[0] in ("--version", "-v", "version"):

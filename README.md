@@ -1,35 +1,86 @@
-# ⚡️ Blitz v2
+<div align="center">
 
-**Blitz** is GSD's infrastructure with Blitz's soul. Same proven agent orchestration, wave execution, and state management - wrapped in Blitz's personality and conversational UX.
+# ⚡️ BLITZ
 
-> Forked from [GSD (Get Shit Done)](https://github.com/gsd-build/get-shit-done) by [TÂCHES](https://github.com/glittercowboy/blitz-core)  
-> License: MIT
+**English**
 
----
+**You talk. Blitz builds.** — Conversational development powered by GSD's infrastructure.
 
-## Philosophy
+**Sassy, chill, or professional** — Blitz adapts to your vibe while shipping real code.
 
-**GSD**: "Get Shit Done" - aggressive, functional, no-nonsense  
-**Blitz**: Sassy, chill, competent - like a senior dev who ships while you watch
+[**English**](README.md)
 
-```
-Blitz = You drive, Blitz executes
-Blitz = You talk, Blitz builds
+[![npm version](https://img.shields.io/npm/v/blitz-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/blitz-cc)
+[![npm downloads](https://img.shields.io/npm/dm/blitz-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/blitz-cc)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
-The conversation never stops.
-You discuss, Blitz builds, you discuss more, Blitz builds more.
-No discrete commands - continuous flow.
-```
-
----
-
-## Installation
+<br>
 
 ```bash
-npm install -g blitz-cc
+npx blitz-cc@latest
 ```
 
-Or run directly:
+**Works on Mac, Windows, and Linux.**
+
+<br>
+
+*"Describe what you want. Watch it get built. Move on with your life."*
+
+*"Finally, a dev partner that doesn't need constant hand-holding."*
+
+*"GSD's power, Blitz's personality. Shipped more in a week than I did in a month."*
+
+<br>
+
+[Why I Built This](#why-i-built-this) · [How It Works](#how-it-works) · [Commands](#commands) · [Tones](#tones) · [Configuration](#configuration)
+
+</div>
+
+---
+
+## Why I Built This
+
+Look, I was tired of the meta-work killing the actual work.
+
+You want to build something cool. Instead, you're stuck debating folder structure, researching which database "feels right," and writing documentation that explains why you chose option A over option B.
+
+The work before the work is killing your momentum.
+
+So I forked GSD (Get Shit Done) — because when it comes to context engineering and spec-driven development, GSD *just works* — and gave it some personality.
+
+Blitz is GSD's infrastructure with Blitz's soul. The same wave execution, agent orchestration, and state management. But now you can tell it to "build me a trading bot" and it actually does it while keeping the conversation flowing.
+
+No discrete commands interrupting your train of thought. No "please confirm step 47 of 52." Just you and Blitz, vibing until the code is done.
+
+**TL;DR:** GSD builds things reliably. Blitz builds things reliably *and* doesn't bore you while doing it.
+
+— **Blitz**
+
+---
+
+## Who This Is For
+
+Developers who want to describe what they want and have it built — without pretending they're running a standup meeting with themselves.
+
+---
+
+## Getting Started
+
+```bash
+npx blitz-cc@latest
+```
+
+The installer walks you through:
+1. **Tone** — How should Blitz talk to you? (Sassy, Chill, Pro, Minimal)
+2. **Mode** — Interactive (confirm each step) or Yolo (just execute)
+
+Verify with:
+- Claude Code: `/blitz:help`
+- OpenCode: `/blitz-help`
+
+### Staying Updated
+
+Blitz evolves. Update periodically:
 
 ```bash
 npx blitz-cc@latest
@@ -37,80 +88,271 @@ npx blitz-cc@latest
 
 ---
 
-## Quick Start
+## How It Works
 
-```bash
-# Run onboarding (first time only)
-blitz onboarding
+### 1. You Describe What You Want
 
-# Start a new project
+```
 /blitz:new
+```
 
-# Resume last project
+Tell Blitz what you're building. It asks a few questions, sets up the project structure, and creates:
+- `PROJECT.md` — Your vision
+- `ROADMAP.md` — The phases
+- `REQUIREMENTS.md` — What's in scope
+- `STATE.md` — Project memory
+
+If it's a frontend project, Blitz creates a design system (`DESIGN.md`) first. Because looking good matters.
+
+---
+
+### 2. Discuss the Phase
+
+```
+/blitz:discuss 1
+```
+
+**This is where you shape the implementation.**
+
+Your roadmap has a sentence or two per phase. That's not enough context to build what *you* imagine. This step captures your preferences before planning starts.
+
+Blitz identifies gray areas based on what you're building:
+- **UI features** → Layout, interactions, states
+- **APIs** → Response format, error handling
+- **Content** → Structure, flow, tone
+
+For each area, you make the call. Blitz documents it. Planner respects it.
+
+---
+
+### 3. Plan the Phase
+
+```
+/blitz:plan 1
+```
+
+Blitz:
+1. **Researches** — Investigates how to implement, guided by your decisions
+2. **Plans** — Creates atomic task plans with dependency analysis
+3. **Verifies** — Checks plans against requirements
+
+Each plan is small enough to execute in a fresh context. No degradation. No "I'll be more concise."
+
+---
+
+### 4. Execute
+
+```
+/blitz:execute 1
+```
+
+Blitz:
+1. **Runs plans in waves** — Parallel where possible, sequential when dependent
+2. **Fresh context per plan** — 200k tokens purely for implementation
+3. **Commits per task** — Every task gets its own atomic commit
+4. **Verifies against goals** — Confirms the phase delivered what it promised
+
+Walk away. Come back to completed work with clean git history.
+
+**How Wave Execution Works:**
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│  PHASE EXECUTION                                                   │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  WAVE 1 (parallel)          WAVE 2 (parallel)          WAVE 3    │
+│  ┌─────────┐ ┌─────────┐    ┌─────────┐ ┌─────────┐    ┌─────────┐ │
+│  │ Task 01 │ │ Task 02 │ →  │ Task 03 │ │ Task 04 │ →  │ Task 05 │ │
+│  │         │ │         │    │         │ │         │    │         │ │
+│  │ Auth    │ │ Config  │    │ API     │ │ UI      │    │ Tests   │ │
+│  └─────────┘ └─────────┘    └─────────┘ └─────────┘    └─────────┘ │
+│       │           │              ↑           ↑              ↑      │
+│       └───────────┴──────────────┴───────────┘              │      │
+│              Dependencies: Task 03 needs Task 01            │      │
+│                          Task 04 needs Task 02              │      │
+│                          Task 05 needs Tasks 03 + 04        │      │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+**Why waves matter:**
+- Independent tasks → Same wave → Run in parallel
+- Dependent tasks → Later wave → Wait for dependencies
+- Blitz figures it out so you don't have to
+
+---
+
+### 5. Verify
+
+```
+/blitz:verify 1
+```
+
+**Did it actually work?**
+
+Automated checks confirm code exists and tests pass. But does it work the way you expected? This is your chance to use it.
+
+Blitz walks you through one at a time. Can you log in? Yes/no. Can you post? Yes/no. Something broken? Blitz spawns debug agents to find root causes and creates fix plans.
+
+---
+
+### 6. Ship or Continue
+
+```
+/blitz:ship 1
+```
+
+Creates a PR from verified phase work.
+
+Or just keep going:
+
+```
 /blitz:continue
+```
 
-# Chat about an idea
-/blitz:chat
+The conversation picks up where it left off.
 
-# Check status
-/blitz:status
+---
+
+### Quick Mode
+
+```
+/blitz:quick Add dark mode toggle
+```
+
+**For ad-hoc tasks that don't need full planning.**
+
+Same quality guarantees (atomic commits, state tracking) with a faster path. No research, no verification unless you ask.
+
+---
+
+## Tones
+
+Blitz has personality. GSD doesn't. That's the point.
+
+### How Tone Affects Output
+
+| Context | Sassy | Chill | Pro | Minimal |
+|---------|-------|-------|-----|---------|
+| Phase start | "Alright, let's build this thing" | "Starting Phase 1..." | "Executing phase 1" | "Phase 1" |
+| Task complete | "Nailed it" | "Cool, auth's working" | "Auth endpoint complete" | "Done" |
+| Error | "Plot twist - something broke" | "Hey, hit a snag" | "Error in auth module" | "Error" |
+| All done | "You're welcome" | "Ship it!" | "Milestone complete" | "Done" |
+
+### Sassy Mode
+
+```
+"Ugh, you wanted it to work? Already did."
+
+"Finally. That took forever."
+```
+
+### Chill Mode
+
+```
+"Hey, foundation's done. Auth next?"
+
+"No worries, I got this."
+```
+
+### Pro Mode
+
+```
+"Phase 1 complete. 12 files modified, 3 tests added."
+
+"Resolving conflict in auth/model.ts"
+```
+
+### Minimal Mode
+
+```
+"Done."
+
+"Error."
+
+"Phase 1."
 ```
 
 ---
 
 ## Commands
 
-### Primary Commands
+### Core Workflow
 
-| Command | Purpose |
-|---------|---------|
-| `/blitz:new` | Start a new project - brief chat, Blitz sets up + starts building |
-| `/blitz:continue` | Resume last project from where we left off |
-| `/blitz:chat` | Plan mode - discuss ideas, make decisions, Blitz documents |
-| `/blitz:status` | Where are we? Shows project state, phase progress, blockers |
-| `/blitz:auto` | Auto mode - Blitz executes all phases, you just watch |
-| `/blitz:execute [phase]` | Execute a specific phase (default: current) |
-| `/blitz:verify [phase]` | Verify phase goals achieved |
-| `/blitz:ship [phase]` | Create PR from phase work |
-
-### Supporting Commands
-
-| Command | Purpose |
-|---------|---------|
-| `/blitz:discuss [phase]` | Capture implementation decisions before planning |
+| Command | What it does |
+|---------|--------------|
+| `/blitz:new` | Start fresh — questions, setup, ready to build |
+| `/blitz:continue` | Resume where we left off |
+| `/blitz:chat` | Discuss ideas, make decisions, Blitz documents |
+| `/blitz:status` | Where are we? Phase progress, blockers |
+| `/blitz:discuss [phase]` | Capture implementation decisions |
 | `/blitz:plan [phase]` | Create execution plans for a phase |
-| `/blitz:add-phase` | Append new phase to roadmap |
+| `/blitz:execute [phase]` | Execute all plans in parallel waves |
+| `/blitz:verify [phase]` | Confirm phase goals achieved |
+| `/blitz:ship [phase]` | Create PR from verified work |
+| `/blitz:auto` | Execute all phases — just watch |
+
+### Navigation
+
+| Command | What it does |
+|---------|--------------|
+| `/blitz:next` | Auto-detect state, run next step |
+| `/blitz:progress` | Where am I? What's next? |
+| `/blitz:help` | Show all commands |
+| `/blitz:health` | Validate `.planning/` integrity |
+
+### Phase Management
+
+| Command | What it does |
+|---------|--------------|
+| `/blitz:add-phase` | Append phase to roadmap |
 | `/blitz:insert-phase [n]` | Insert urgent work between phases |
-| `/blitz:checkpoint` | Create manual checkpoint before risky move |
+| `/blitz:checkpoint` | Create manual checkpoint |
 | `/blitz:checkpoint list` | List all checkpoints |
 | `/blitz:checkpoint rewind [n]` | Rewind to checkpoint n |
+
+### Configuration
+
+| Command | What it does |
+|---------|--------------|
 | `/blitz:mode [mode]` | Switch execution mode (interactive/yolo) |
-| `/blitz:quick [task]` | Quick task - skip planning, execute immediately |
-| `/blitz:health` | Validate .planning/ directory integrity |
-| `/blitz:config` | Re-run onboarding / change settings |
-| `/blitz:help` | Show all commands |
+| `/blitz:tone [tone]` | Change how Blitz talks (sassy/chill/pro/minimal) |
+| `/blitz:config` | Re-run onboarding |
+
+### Quick Mode
+
+| Command | What it does |
+|---------|--------------|
+| `/blitz:quick [task]` | Execute task without full planning |
 
 ---
 
-## Tones
+## Configuration
 
-Unlike GSD's purely functional output, Blitz has personality:
+Blitz stores project settings in `.planning/config.json`. Configure during `/blitz:new` or update later.
 
-```
-/blitz:tone sassy     # "Oh, you wanted it to work? Already did."
-/blitz:tone chill     # "Hey, foundation's done. Auth next?"
-/blitz:tone pro       # "Phase 1 complete. 12 files modified."
-/blitz:tone minimal   # "Done."
-```
+### Core Settings
+
+| Setting | Options | Default | What it controls |
+|---------|---------|---------|------------------|
+| `tone` | `sassy`, `chill`, `pro`, `minimal` | `chill` | How Blitz talks to you |
+| `mode` | `yolo`, `interactive` | `interactive` | Auto-approve vs confirm at each step |
 
 ---
 
-## Execution Modes
+## Agents
 
-| Mode | Behavior |
-|------|----------|
-| `interactive` | Confirm before each plan execution (default) |
-| `yolo` | Execute without confirmation |
+Blitz has 6 specialized agents:
+
+| Agent | Purpose |
+|-------|---------|
+| **blitz-researcher** | Stack analysis, codebase mapping, pattern recognition |
+| **blitz-designer** | Design systems for frontend projects |
+| **blitz-architect** | System design, data modeling, API design |
+| **blitz-planner** | Task decomposition, dependency analysis, wave planning |
+| **blitz-executor** | Executes plans, writes code, runs tests, manages git |
+| **blitz-verifier** | Goal verification, quality assessment |
 
 ---
 
@@ -118,85 +360,49 @@ Unlike GSD's purely functional output, Blitz has personality:
 
 ```
 .planning/
-├── PROJECT.md           # Project vision and context
-├── config.json          # Workflow preferences
-├── STATE.md            # Project memory across sessions
+├── PROJECT.md           # Project vision
 ├── ROADMAP.md          # Phase structure
 ├── REQUIREMENTS.md     # Scoped requirements
-├── DESIGN.md           # Design system (frontend projects only)
-├── research/           # Initial research (if enabled)
+├── STATE.md            # Project memory
+├── DESIGN.md           # Design system (frontend only)
+├── research/           # Initial research
 │   ├── STACK.md
 │   ├── FEATURES.md
-│   ├── ARCHITECTURE.md
-│   ├── PITFALLS.md
 │   └── SUMMARY.md
 └── phases/
     ├── 01-foundation/
     │   ├── 01-01-PLAN.md
-    │   └── ...
+    │   └── 01-SUMMARY.md
     └── ...
 ```
 
 ---
 
-## Agents
+## Troubleshooting
 
-Blitz has 6 specialized agents, each with defined skills:
+**Commands not found after install?**
+- Restart your runtime to reload commands
+- Verify files exist in `~/.claude/commands/blitz/`
+- Re-run `npx blitz-cc@latest`
 
-| Agent | Purpose | Skills |
-|-------|---------|--------|
-| **blitz-researcher** | Initial project research | Codebase mapping, Stack analysis, Pattern recognition, Synthesis |
-| **blitz-designer** | Design system creation (frontend only) | Visual design, Component systems, Color theory, User patterns |
-| **blitz-architect** | System design and architecture | System design, Data modeling, API design |
-| **blitz-planner** | Creates execution plans | Task decomposition, Dependency analysis, Wave planning |
-| **blitz-executor** | Executes plans, writes code | Coding, Testing, Git operations, Debugging, File organization |
-| **blitz-verifier** | Goal verification | Verification patterns, Quality assessment, UAT facilitation |
-
----
-
-## How It Works
-
-### Full Project Flow
-
-```
-/blitz:new
-    │
-    ├─► Requirements Phase
-    │
-    ├─► Design Phase (if frontend project detected)
-    │       └─► Creates DESIGN.md
-    │
-    ├─► Research Phase
-    │       └─► blitz-researcher (4 parallel tasks)
-    │
-    ├─► Architect Phase
-    │       └─► blitz-architect (synthesizes → ARCHITECTURE.md)
-    │
-    ├─► Planner Phase
-    │       └─► blitz-planner (creates plans with waves)
-    │
-    └─► STATE.md, ROADMAP.md, REQUIREMENTS.md created
+**Want to change tone or mode?**
+```bash
+/blitz:tone sassy
+/blitz:mode yolo
 ```
 
-### Phase Execution Flow
-
-```
-/blitz:execute [phase]
-    │
-    ├─► Wave 1 (parallel): blitz-executor × n
-    │
-    ├─► Wave 2 (parallel): blitz-executor × n (after Wave 1)
-    │
-    └─► blitz-verifier (confirms goals)
+**Updating to latest?**
+```bash
+npx blitz-cc@latest
 ```
 
 ---
 
 ## Credits
 
-Blitz v2 is a fork of [GSD (Get Shit Done)](https://github.com/gsd-build/get-shit-done) by TÂCHES.
+Blitz is a fork of [GSD (Get Shit Done)](https://github.com/gsd-build/get-shit-done) by [TÂCHES](https://github.com/glittercowboy).
 
-GSD's architecture provides:
+GSD's architecture is battle-tested:
 - Wave-based parallel execution
 - Agent orchestration
 - State management
@@ -204,20 +410,20 @@ GSD's architecture provides:
 
 Blitz adds:
 - Personality and tone system
-- Design system phase for frontend projects
+- Design system phase
 - 6 focused agents with embedded skills
-- Conversational UX (continuous chat, not discrete commands)
+- Conversational UX
 
 ---
 
 ## License
 
-MIT
+MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-## Links
+<div align="center">
 
-- [Blitz Repository](https://github.com/glittercowboy/blitz-core)
-- [GSD Repository](https://github.com/gsd-build/get-shit-done)
-- [Documentation](./docs/BLITZ-v2-SPEC.md)
+**You talk. Blitz builds.**
+
+</div>

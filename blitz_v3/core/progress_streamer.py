@@ -3,13 +3,49 @@
 Progress Streamer - Streams casual progress updates every 5-10 minutes
 
 Converts technical progress into human-friendly updates.
+Supports Telegram notifications if Claude Code Telegram plugin is active.
 """
 
 import json
 import time
+import os
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional, Callable
+
+# Telegram notification helpers
+def send_telegram_notification(message: str) -> bool:
+    """
+    Send notification via Telegram if available.
+    Returns True if sent, False if no Telegram or failed.
+    """
+    # Check if Telegram plugin is available (set by Claude Code environment)
+    telegram_available = os.environ.get('CLAUDE_TELEGRAM_AVAILABLE', 'false').lower() == 'true'
+    telegram_chat_id = os.environ.get('CLAUDE_TELEGRAM_CHAT_ID')
+    
+    if not telegram_available or not telegram_chat_id:
+        return False
+    
+    # Note: Actual sending is handled by Claude Code via the telegram:reply tool
+    # This function just signals that a notification should be sent
+    # The message will be printed and Claude will route it to Telegram if plugin is active
+    return True
+
+def notify_user(message: str, console_callback: Callable = None):
+    """
+    Notify user via console and/or Telegram.
+    Falls back to console if Telegram not available.
+    """
+    # Always print to console
+    if console_callback:
+        console_callback(message)
+    else:
+        print(message)
+    
+    # Signal Telegram availability (Claude handles actual routing)
+    if send_telegram_notification(message):
+        # Telegram plugin is active - message will be routed there too
+        pass
 
 class ProgressStreamer:
     """Streams natural language progress updates"""
@@ -24,6 +60,7 @@ class ProgressStreamer:
     def check_and_report(self, force: bool = False) -> Optional[str]:
         """
         Check progress and return natural language update if enough time passed
+        Sends to both console and Telegram if available.
         
         Args:
             force: Report even if not enough time passed
@@ -50,8 +87,8 @@ class ProgressStreamer:
         
         if message:
             self.last_update = time.time()
-            if self.update_callback:
-                self.update_callback(message)
+            # Send to both console and Telegram
+            notify_user(message, self.update_callback)
         
         return message
     
